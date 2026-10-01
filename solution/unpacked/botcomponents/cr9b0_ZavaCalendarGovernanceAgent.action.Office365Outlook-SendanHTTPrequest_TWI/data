@@ -1,0 +1,27 @@
+kind: TaskDialog
+inputs:
+  - kind: ManualTaskInput
+    propertyName: Uri
+    value: https://graph.microsoft.com/v1.0/me/calendar/getSchedule
+
+  - kind: ManualTaskInput
+    propertyName: Method
+    value: POST
+
+  - kind: AutomaticTaskInput
+    propertyName: file
+
+modelDisplayName: ReadCalendarWorkingHoursAndAvailability
+modelDescription: Read Microsoft Graph free/busy and workingHours before choosing a replacement time. Fixed read-only getSchedule endpoint and POST method cannot modify events. Supply Body JSON with schedules ["aandino@diax50808308.onmicrosoft.com"], startTime and endTime each containing dateTime and timeZone, and availabilityViewInterval 15. Query the relevant next two business days. Use returned workingHours daysOfWeek, startTime, endTime and timeZone. Cross-check exact intervals and event IDs with ReadCalendarGraphViaOutlook calendarView. If workingHours unavailable, use Monday-Friday 09:00-17:00 in calendar/event originalStartTimeZone; never guess timezone or availability.
+outputs:
+  - propertyName: Response
+
+action:
+  kind: InvokeConnectorTaskAction
+  connectionReference: cr9b0_ZavaCalendarGovernanceAgent.shared_office365.shared-office365-20bb9aa6-2d1b-4b68-a63c-05bce490bb97
+  connectionProperties:
+    mode: Maker
+
+  operationId: HttpRequest
+
+outputMode: All

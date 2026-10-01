@@ -1,0 +1,15 @@
+<aiskillconfig uniquename="ais_FormFillFieldOptOut_cr9b0_calendargovernancerule_cr9b0_ruletext">
+  <aiskill>FormFillFieldOptOut</aiskill>
+  <attribute>
+    <entityid.logicalname>cr9b0_calendargovernancerule</entityid.logicalname>
+    <logicalname>cr9b0_ruletext</logicalname>
+  </attribute>
+  <description>cr9b0_calendargovernancerule - Rule Text Form fill opt out</description>
+  <entity>
+    <logicalname>cr9b0_calendargovernancerule</logicalname>
+  </entity>
+  <iscustomizable>1</iscustomizable>
+  <scope>1</scope>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</aiskillconfig>

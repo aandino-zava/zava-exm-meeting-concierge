@@ -1,0 +1,38 @@
+kind: TaskDialog
+modelDisplayName: List rows from selected environment 1
+modelDescription: List rows from a table in a Power Platform environment.
+outputs:
+  - propertyName: "@odata.nextLink"
+    name: Next link
+    description: The url to fetch next page data.
+
+  - propertyName: value
+    name: value
+
+action:
+  kind: InvokeConnectorTaskAction
+  connectionReference: cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0
+  connectionProperties:
+    mode: Invoker
+
+  operationId: ListRecordsWithOrganization
+  dynamicOutputSchema:
+    kind: Record
+    properties:
+      "@odata.nextLink":
+        displayName: Next link
+        description: The url to fetch next page data.
+        visibility: Advanced
+        order: 1
+        type: String
+
+      value:
+        order: 0
+        type:
+          kind: Table
+          properties:
+            dynamicProperties:
+              order: 0
+              type: Any
+
+outputMode: All

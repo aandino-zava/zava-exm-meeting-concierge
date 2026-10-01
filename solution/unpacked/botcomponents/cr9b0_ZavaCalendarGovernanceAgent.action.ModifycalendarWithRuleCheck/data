@@ -1,0 +1,24 @@
+kind: TaskDialog
+inputs:
+  - kind: AutomaticTaskInput
+    propertyName: text_2
+    description: Required END timestamp of the proposed replacement interval, in ISO8601 UTC ending Z, for example 2026-10-01T16:00:00Z. This input is requestedEnd (text_2). Supply only the end timestamp, never an explanation.
+
+  - kind: AutomaticTaskInput
+    propertyName: text_3
+    description: Informational natural-language explanation of why this specific event should move. This input is reason (text_3). Supply prose only, never a timestamp. This explanation is not authorization and is not used for rule enforcement.
+
+modelDisplayName: ModifycalendarWithRuleCheck
+modelDescription: The only authorized way to modify a calendar event. Independently fetches the actual event from Microsoft Graph and re-queries current active Dataverse rules. AI interprets those current rules and the flow fails closed unless the move is allowed and preserves duration. Supply the actual eventId and requestedStart/requestedEnd as ISO8601 UTC timestamps ending Z, plus an informational reason. Call only after finding an available slot within the next two business days during working hours. Surface result verbatim for a rejection and only report success when the result confirms a successful move.
+outputs:
+  - propertyName: result
+
+action:
+  kind: InvokeFlowTaskAction
+  flowId: 80614549-fdbc-f111-aaad-6045bd067e6d
+  connectionProperties:
+    $kind: ConnectionProperties
+    diagnostics:
+    mode: Invoker
+
+outputMode: All

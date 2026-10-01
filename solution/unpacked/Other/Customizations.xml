@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26084.171" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26084.00171">
+  <Entities />
+  <Roles />
+  <Workflows />
+  <FieldSecurityProfiles />
+  <Templates />
+  <EntityMaps />
+  <EntityRelationships />
+  <OrganizationSettings />
+  <optionsets />
+  <CustomControls />
+  <EntityDataProviders />
+  <connectionreferences>
+    <connectionreference connectionreferencelogicalname="cr9b0_sharedmicrosoftcopilotstudio_52e72">
+      <connectionreferencedisplayname>Microsoft Copilot Studio ZavaCalendarGovernancePOC-52e72</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_microsoftcopilotstudio</connectorid>
+      <iscustomizable>1</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+    <connectionreference connectionreferencelogicalname="cr9b0_sharedoffice365_2e7d8">
+      <connectionreferencedisplayname>Office 365 Outlook ZavaCalendarGovernancePOC-2e7d8</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_office365</connectorid>
+      <iscustomizable>1</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+    <connectionreference connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0">
+      <connectionreferencedisplayname>cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps</connectorid>
+      <iscustomizable>0</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+    <connectionreference connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_office365.shared-office365-20bb9aa6-2d1b-4b68-a63c-05bce490bb97">
+      <connectionreferencedisplayname>cr9b0_ZavaCalendarGovernanceAgent.shared_office365.shared-office365-20bb9aa6-2d1b-4b68-a63c-05bce490bb97</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_office365</connectorid>
+      <iscustomizable>0</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+    <connectionreference connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_webcontents.1b86c62ee4cd4312933bac29337c7fb9">
+      <connectionreferencedisplayname>cr9b0_ZavaCalendarGovernanceAgent.shared_webcontents.1b86c62ee4cd4312933bac29337c7fb9</connectionreferencedisplayname>
+      <connectorid>/providers/Microsoft.PowerApps/apis/shared_webcontents</connectorid>
+      <iscustomizable>0</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
+      <statecode>0</statecode>
+      <statuscode>1</statuscode>
+    </connectionreference>
+  </connectionreferences>
+  <Languages>
+    <Language>1033</Language>
+  </Languages>
+</ImportExportXml>

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<EntityRelationships xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <EntityRelationship Name="business_unit_cr9b0_calendargovernancerule" />
+  <EntityRelationship Name="lk_cr9b0_calendargovernancerule_createdby" />
+  <EntityRelationship Name="lk_cr9b0_calendargovernancerule_modifiedby" />
+  <EntityRelationship Name="owner_cr9b0_calendargovernancerule" />
+  <EntityRelationship Name="team_cr9b0_calendargovernancerule" />
+  <EntityRelationship Name="user_cr9b0_calendargovernancerule" />
+</EntityRelationships>

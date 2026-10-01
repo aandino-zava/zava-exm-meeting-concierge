@@ -1,0 +1,85 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_microsoftcopilotstudio": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr9b0_sharedmicrosoftcopilotstudio_52e72"
+        },
+        "api": {
+          "name": "shared_microsoftcopilotstudio"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr9b0_sharedoffice365_2e7d8"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_a_new_event_is_created_(V3)": {
+          "recurrence": {
+            "interval": 1,
+            "frequency": "Minute"
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "metadata": {
+            "operationMetadataId": "c0511483-e6d0-4202-919d-5dfe9c760168"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_office365",
+              "operationId": "CalendarGetOnNewItemsV3",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+            },
+            "parameters": {
+              "table": "AAMkADgwODg1YTI2LTg1YjItNGEwOC05YzMzLTdkZGUzOTIwYzA0NgBGAAAAAAAZrtvm3EeARJqTLcHSD4TRBwB_rgsxhUtDQ6vPGF22H5v_AAAAAAEGAAB_rgsxhUtDQ6vPGF22H5v_AAACoruSAAA="
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Execute_Agent_and_wait": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "baeef55c-cd23-4d56-9dbc-356fcaf9c829"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_microsoftcopilotstudio",
+              "operationId": "ExecuteCopilotAsyncV2",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_microsoftcopilotstudio"
+            },
+            "parameters": {
+              "Copilot": "cr9b0_ZavaCalendarGovernanceAgent",
+              "body/message": "Complete the autonomous calendar-governance workflow now for the newly created eventId: @{triggerOutputs()?['body/id']}. Retrieve current Dataverse rules and authoritative Graph event/calendar data. If there is no strict overlap, stop with no change and no email. If a real conflict exists, find an available slot within the next two business days during event-timezone working hours, preserve duration, and execute the allowed move only through ModifycalendarWithRuleCheck. If the newly created event is protected and conflicts, execute NotifyExecutiveAssistant with both events and the actual confirmed outcome, including failure or no-slot outcome. Do not stop at identifying a conflict or propose that another workflow should finish; use your configured tools to complete the entire action sequence in this invocation. Return the actual results, never unexecuted intentions."
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

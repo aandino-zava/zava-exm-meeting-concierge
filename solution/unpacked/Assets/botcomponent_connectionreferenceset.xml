@@ -1,0 +1,23 @@
+<botcomponent_connectionreferenceset>
+  <botcomponent_connectionreference botcomponentid.schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.HTTPwithMicrosoftEntraIDpreauthorized-Getwebresource" connectionreferenceid.connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_webcontents.1b86c62ee4cd4312933bac29337c7fb9">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+  <botcomponent_connectionreference botcomponentid.schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.MicrosoftDataverse-Listrowsfromselectedenvironment" connectionreferenceid.connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+  <botcomponent_connectionreference botcomponentid.schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.MicrosoftDataverse-Listrowsfromselectedenvironment_foi" connectionreferenceid.connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+  <botcomponent_connectionreference botcomponentid.schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.MicrosoftDataverse-Listrowsfromselectedenvironment_RYc" connectionreferenceid.connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+  <botcomponent_connectionreference botcomponentid.schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.Office365Outlook-SendanemailV2" connectionreferenceid.connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_office365.shared-office365-20bb9aa6-2d1b-4b68-a63c-05bce490bb97">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+  <botcomponent_connectionreference botcomponentid.schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.Office365Outlook-SendanHTTPrequest" connectionreferenceid.connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_office365.shared-office365-20bb9aa6-2d1b-4b68-a63c-05bce490bb97">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+  <botcomponent_connectionreference botcomponentid.schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.Office365Outlook-SendanHTTPrequest_TWI" connectionreferenceid.connectionreferencelogicalname="cr9b0_ZavaCalendarGovernanceAgent.shared_office365.shared-office365-20bb9aa6-2d1b-4b68-a63c-05bce490bb97">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+</botcomponent_connectionreferenceset>

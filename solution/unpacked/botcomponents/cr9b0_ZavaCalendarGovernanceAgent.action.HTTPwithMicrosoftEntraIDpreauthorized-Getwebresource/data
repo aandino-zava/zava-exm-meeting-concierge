@@ -1,0 +1,20 @@
+kind: TaskDialog
+inputs:
+  - kind: AutomaticTaskInput
+    propertyName: path
+    description: Relative Microsoft Graph calendar GET path beginning /v1.0/me/events/, /v1.0/me/calendarView?, or /v1.0/me/mailboxSettings. Encode event IDs and ISO8601 query parameters. Never request other resources or hosts.
+
+modelDisplayName: ReadCalendarGraph
+modelDescription: Read calendar data using Microsoft Graph GET only. Use /v1.0/me/events/{encoded eventId} for authoritative events; /v1.0/me/calendarView?startDateTime={ISO8601}&endDateTime={ISO8601}&$select=id,subject,start,end,isCancelled,showAs,type&$top=1000 for overlaps and available slots, including recurring occurrences. Follow @odata.nextLink pages. Use /v1.0/me/mailboxSettings for timeZone and workingHours. Only request calendar events and mailbox scheduling settings. This tool cannot modify calendar data.
+outputs:
+  - propertyName: Response
+
+action:
+  kind: InvokeConnectorTaskAction
+  connectionReference: cr9b0_ZavaCalendarGovernanceAgent.shared_webcontents.1b86c62ee4cd4312933bac29337c7fb9
+  connectionProperties:
+    mode: Maker
+
+  operationId: GetFileContent
+
+outputMode: All

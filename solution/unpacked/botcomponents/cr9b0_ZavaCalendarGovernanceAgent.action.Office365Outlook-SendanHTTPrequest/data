@@ -1,0 +1,20 @@
+kind: TaskDialog
+inputs:
+  - kind: ManualTaskInput
+    propertyName: Method
+    value: GET
+
+modelDisplayName: ReadCalendarGraphViaOutlook
+modelDescription: Read Microsoft Graph calendar events with GET only. Retrieve authoritative events from https://graph.microsoft.com/v1.0/me/events/{encoded eventId}. Retrieve expanded recurring occurrences and free/busy intervals from https://graph.microsoft.com/v1.0/me/calendar/calendarView?startDateTime={ISO8601}&endDateTime={ISO8601}&$select=id,subject,start,end,isCancelled,showAs,type&$top=1000 . Follow @odata.nextLink. Ignore cancelled events and showAs free. Preserve original duration. This action is fixed to GET and cannot modify events.
+outputs:
+  - propertyName: Response
+
+action:
+  kind: InvokeConnectorTaskAction
+  connectionReference: cr9b0_ZavaCalendarGovernanceAgent.shared_office365.shared-office365-20bb9aa6-2d1b-4b68-a63c-05bce490bb97
+  connectionProperties:
+    mode: Maker
+
+  operationId: HttpRequest
+
+outputMode: All

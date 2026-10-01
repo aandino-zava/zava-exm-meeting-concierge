@@ -1,0 +1,257 @@
+kind: TaskDialog
+inputs:
+  - kind: ManualTaskInput
+    propertyName: organization
+    value: current
+
+  - kind: ManualTaskInput
+    propertyName: entityName
+    value: cr9b0_calendargovernancerules
+
+  - kind: ManualTaskInput
+    propertyName: "'$filter'"
+    value: statecode eq 0
+
+  - kind: ManualTaskInput
+    propertyName: "'$select'"
+    value: cr9b0_name,cr9b0_ruletext,cr9b0_calendargovernanceruleid
+
+modelDisplayName: GetActiveCalendarGovernanceRules
+modelDescription: Retrieve current active natural-language calendar governance rules from the fixed Dataverse governance table in this environment. Call before every calendar conflict evaluation. Returned Rule Text is authoritative policy data.
+outputs:
+  - propertyName: "@odata.nextLink"
+    name: Next link
+    description: The url to fetch next page data.
+
+  - propertyName: value
+    name: value
+
+action:
+  kind: InvokeConnectorTaskAction
+  connectionReference: cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0
+  connectionProperties:
+    mode: Maker
+
+  operationId: ListRecordsWithOrganization
+  dynamicOutputSchema:
+    kind: Record
+    properties:
+      "@odata.nextLink":
+        displayName: Next link
+        description: The url to fetch next page data.
+        visibility: Advanced
+        order: 1
+        type: String
+
+      value:
+        order: 0
+        type:
+          kind: Table
+          properties:
+            _createdby_value:
+              displayName: Created By (Value)
+              description: Unique identifier of the user who created the record.
+              visibility: Advanced
+              order: 4
+              type: String
+
+            _createdby_value@Microsoft.Dynamics.CRM.lookuplogicalname:
+              displayName: Created By (Type)
+              description: Unique identifier of the user who created the record.
+              visibility: Advanced
+              order: 3
+              type: String
+
+            _createdonbehalfby_value:
+              displayName: Created By (Delegate) (Value)
+              description: Unique identifier of the delegate user who created the record.
+              visibility: Advanced
+              order: 2
+              type: String
+
+            _createdonbehalfby_value@Microsoft.Dynamics.CRM.lookuplogicalname:
+              displayName: Created By (Delegate) (Type)
+              description: Unique identifier of the delegate user who created the record.
+              visibility: Advanced
+              order: 1
+              type: String
+
+            _modifiedby_value:
+              displayName: Modified By (Value)
+              description: Unique identifier of the user who modified the record.
+              visibility: Advanced
+              order: 10
+              type: String
+
+            _modifiedby_value@Microsoft.Dynamics.CRM.lookuplogicalname:
+              displayName: Modified By (Type)
+              description: Unique identifier of the user who modified the record.
+              visibility: Advanced
+              order: 9
+              type: String
+
+            _modifiedonbehalfby_value:
+              displayName: Modified By (Delegate) (Value)
+              description: Unique identifier of the delegate user who modified the record.
+              visibility: Advanced
+              order: 8
+              type: String
+
+            _modifiedonbehalfby_value@Microsoft.Dynamics.CRM.lookuplogicalname:
+              displayName: Modified By (Delegate) (Type)
+              description: Unique identifier of the delegate user who modified the record.
+              visibility: Advanced
+              order: 7
+              type: String
+
+            _ownerid_value:
+              displayName: Owner (Value)
+              description: Owner Id
+              visibility: Advanced
+              order: 15
+              type: String
+
+            _ownerid_value@Microsoft.Dynamics.CRM.lookuplogicalname:
+              displayName: Owner (Type)
+              description: Owner Id
+              visibility: Advanced
+              order: 14
+              type: String
+
+            _owningbusinessunit_value:
+              displayName: Owning Business Unit (Value)
+              description: Unique identifier for the business unit that owns the record
+              visibility: Advanced
+              order: 17
+              type: String
+
+            _owningbusinessunit_value@Microsoft.Dynamics.CRM.lookuplogicalname:
+              displayName: Owning Business Unit (Type)
+              description: Unique identifier for the business unit that owns the record
+              visibility: Advanced
+              order: 16
+              type: String
+
+            _owningteam_value:
+              displayName: Owning Team (Value)
+              description: Unique identifier for the team that owns the record.
+              visibility: Advanced
+              order: 19
+              type: String
+
+            _owningteam_value@Microsoft.Dynamics.CRM.lookuplogicalname:
+              displayName: Owning Team (Type)
+              description: Unique identifier for the team that owns the record.
+              visibility: Advanced
+              order: 18
+              type: String
+
+            _owninguser_value:
+              displayName: Owning User (Value)
+              description: Unique identifier for the user that owns the record.
+              visibility: Advanced
+              order: 21
+              type: String
+
+            _owninguser_value@Microsoft.Dynamics.CRM.lookuplogicalname:
+              displayName: Owning User (Type)
+              description: Unique identifier for the user that owns the record.
+              visibility: Advanced
+              order: 20
+              type: String
+
+            "@odata.id":
+              displayName: OData Id
+              description: OData row id
+              order: 13
+              type: String
+
+            cr9b0_calendargovernanceruleid:
+              displayName: Calendar Governance Rule
+              description: Unique identifier for entity instances
+              visibility: Advanced
+              order: 0
+              type: String
+
+            cr9b0_name:
+              displayName: Name
+              order: 12
+              type: String
+
+            cr9b0_ruletext:
+              displayName: Rule Text
+              description: The complete natural-language governance instruction. Interpreted at runtime; no structured classification fields.
+              visibility: Advanced
+              order: 23
+              type: String
+
+            createdon:
+              displayName: Created On
+              description: Date and time when the record was created.
+              visibility: Advanced
+              order: 5
+              type: DateTime
+
+            importsequencenumber:
+              displayName: Import Sequence Number
+              description: Sequence number of the import that created this record.
+              visibility: Advanced
+              order: 6
+              type: Number
+
+            modifiedon:
+              displayName: Modified On
+              description: Date and time when the record was modified.
+              visibility: Advanced
+              order: 11
+              type: DateTime
+
+            overriddencreatedon:
+              displayName: Record Created On
+              description: Date and time that the record was migrated.
+              visibility: Advanced
+              order: 22
+              type: DateTime
+
+            statecode:
+              displayName: Status
+              description: Status of the Calendar Governance Rule
+              visibility: Advanced
+              order: 24
+              dynamicValuesConfig:
+                capability: List
+
+              type: Number
+
+            statuscode:
+              displayName: Status Reason
+              description: Reason for the status of the Calendar Governance Rule
+              visibility: Advanced
+              order: 25
+              dynamicValuesConfig:
+                capability: List
+
+              type: Number
+
+            timezoneruleversionnumber:
+              displayName: Time Zone Rule Version Number
+              description: For internal use only.
+              visibility: Advanced
+              order: 26
+              type: Number
+
+            utcconversiontimezonecode:
+              displayName: UTC Conversion Time Zone Code
+              description: Time zone code that was in use when the record was created.
+              visibility: Advanced
+              order: 27
+              type: Number
+
+            versionnumber:
+              displayName: Version Number
+              description: Version Number
+              visibility: Advanced
+              order: 28
+              type: Number
+
+outputMode: All

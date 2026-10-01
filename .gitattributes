@@ -1,0 +1,2 @@
+* -text
+# Preserve the exact native baseline bytes and archive hashes across checkouts.

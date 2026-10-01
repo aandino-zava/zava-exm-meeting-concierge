@@ -1,0 +1,25 @@
+flowchart TD
+    O[Outlook calendar] --> T[New event trigger flow]
+    T --> A[Zava ExM Meeting Concierge]
+    A --> R[Runtime rule lookup]
+    D[(Dataverse natural language rules)] --> R
+    R --> G[Microsoft Graph calendar search]
+    G --> C{Strict calendar conflict}
+    C -->|No| N[Stop without changes or notification]
+    C -->|Yes| P[Agent selects movable event and replacement slot]
+    P --> K[ModifycalendarWithRuleCheck]
+    subgraph Gatekeeper [Independent calendar write boundary]
+      K --> E[Authoritative Graph target event GET]
+      E --> R2[Second Dataverse rule lookup]
+      R2 --> V[Read current conflicts and filter strict overlaps]
+      V --> AI[AI governance classification]
+      AI --> Q{ALLOW and deterministic checks pass}
+      Q -->|No| X[Reject or fail closed]
+      Q -->|Yes| W[Graph PATCH with If Match]
+    end
+    D --> R2
+    W --> O
+    X --> OUT[Verified outcome returned to agent]
+    W --> OUT
+    OUT --> EA[Notify executive assistant when new protected event conflicts]
+    P -->|Both protected or no slot| EA

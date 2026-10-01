@@ -1,0 +1,5 @@
+<botcomponent_workflowset>
+  <botcomponent_workflow botcomponentid.schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.ModifycalendarWithRuleCheck" workflowid.workflowid="80614549-fdbc-f111-aaad-6045bd067e6d">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_workflow>
+</botcomponent_workflowset>
