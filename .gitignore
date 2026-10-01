@@ -1,0 +1,24 @@
+# Authentication and local configuration
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+*.pem
+*token*cache*
+*authprofile*
+.azure/
+.pac/
+.tools/
+.codex/
+# Local tools and generated validation output
+node_modules/
+__pycache__/
+.venv/
+build/
+work/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
