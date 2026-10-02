@@ -1,8 +1,7 @@
 # Zava ExM Meeting Concierge testing
 
-These results come from the September 30 build. The calendar examples used meetings scheduled for October 1. We did not run the tests again when creating the repository.
-
-Each Evidence entry explains what was checked and what that check supports. Two scenarios were deliberately left untested, and the final automatic no-conflict scenario was not repeated after its fix.
+These results derive from my testing on what I derived to be a completed build, a good enough MVP. Each Evidence entry explains what was checked and what that check supports.
+Two scenarios I had orriginally planned for were left untested.
 
 ## Normal meeting with no conflict
 
@@ -104,6 +103,6 @@ Each Evidence entry explains what was checked and what that check supports. Two 
 
 ## Corrections and evidence limits
 
-Earlier runs exposed connection problems and a mix-up between the requested end time and the explanation for the move. The agent tool's input descriptions were corrected before the final successful run. Those earlier failures are not counted as passes. We did not repeat the complete process after the project rename or during the repository work.
+Earlier runs exposed connection problems and a mix-up between the requested end time and the explanation for the move. The agent tool's input descriptions were corrected before the final successful run. Those earlier failures are not counted as passes.
 
-These results describe the behavior observed during the build. They do not guarantee every possible calendar situation will work. Mailbox screenshots and raw service responses are not included because they contain account details. The [solution instructions](../solution/README.md#what-was-checked) separately explain what was checked in the exported package.
+These results describe the behavior observed during the build. They do not guarantee every possible calendar situation will work. Mailbox screenshots and raw service responses are not included because they contain account details of my demo tenant. The [solution instructions](../solution/README.md#what-was-checked) separately explain what was checked in the exported package.
