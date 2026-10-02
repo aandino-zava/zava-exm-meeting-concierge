@@ -15,7 +15,3 @@ No token caches, authentication profiles, cookies, passwords, private certificat
 ## Review method
 
 The validation script scans all candidate text files and archive members for credential signatures, JWTs, private keys, bearer values, and signed-token parameters; checks for authentication-cache filenames; parses native JSON, XML, and bot YAML; and inventories address/name occurrences by file without printing their values. The native export was also reviewed for fixed configuration and connection definitions. This is a targeted static review, not a guarantee that every possible secret format is detected.
-
-## Naming review
-
-Repository-authored product prose consistently uses Zava ExM Meeting Concierge. Legacy fragments remain only in native assets and exact source references: the solution unique name, bot schema and component paths, trigger workflow name/filename, and generated connection-reference labels. Preserving those values keeps the baseline faithful and avoids breaking dependency references. No blind replacement was performed.
