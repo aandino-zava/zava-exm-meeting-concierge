@@ -6,7 +6,7 @@ I built Zava ExM Meeting Concierge to explore a practical governance problem: ho
 
 This proof of concept uses one Copilot Studio agent, two Power Automate flows, Microsoft Graph, and natural-language rules in Dataverse. The agent identifies conflicts and proposes a new time. **Every calendar write goes through `ModifycalendarWithRuleCheck`, which reads the event and policy again before allowing a change.**
 
-This repository contains the actual unmanaged solution exported from Zava PP Lab Dev on October 1, 2026, plus architecture and implementation notes. It is a demonstrated lab implementation, not a production-readiness claim.
+This repository contains the actual unmanaged solution exported from my Lab\Dev environment on October 1, 2026, plus architecture and implementation notes. It is a demonstrated lab implementation, not a production-readiness claim.
 
 ---
 
