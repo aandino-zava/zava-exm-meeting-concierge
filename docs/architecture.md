@@ -4,6 +4,10 @@ I built this around one simple idea: let the agent work out a scheduling problem
 
 Zava ExM Meeting Concierge looks for conflicts, reads the current meeting rules, and finds a replacement time. A separate flow, called the Gatekeeper, decides whether the move is allowed.
 
+## Why the solution lives in Dev
+
+I keep the agent, flows, and governance table together in Dev so I can work on the complete solution before considering a release. This follows the Dev → UAT → Prod approach in my [Power Platform ALM lab](https://github.com/aandino-zava/zava-power-platform-lab). The Concierge has only been demonstrated in Dev. The [README explains that choice](../README.md#why-i-built-this-in-dev).
+
 ## What happens when a meeting is created
 
 1. **Outlook starts the process.** A flow checks for newly created events every minute and passes each event to the agent. Moving an existing meeting does not start that same creation process again.

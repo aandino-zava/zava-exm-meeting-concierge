@@ -2,13 +2,23 @@
 
 ## Overview
 
-I built Zava ExM Meeting Concierge to explore a practical governance problem: how do we let an AI agent reason about calendar changes while keeping the final write decision in a separate enforcement path?
+I built Zava ExM Meeting Concierge to explore a practical governance problem: how can I let an AI agent reason about calendar changes while keeping the final write decision in a separate enforcement path?
 
 This proof of concept uses one Copilot Studio agent, two Power Automate flows, Microsoft Graph, and natural-language rules in Dataverse. The agent identifies conflicts and proposes a new time. **Every calendar write goes through `ModifycalendarWithRuleCheck`, which reads the event and policy again before allowing a change.**
 
 This repository contains the actual unmanaged solution exported from Zava PP Lab Dev on October 1, 2026, plus architecture and implementation notes. It is a demonstrated lab implementation, not a production-readiness claim.
 
 ---
+
+## Why I built this in Dev
+
+I placed the whole solution in **Zava PP Lab Dev** because this is where I build, test, and refine it. I needed room to adjust the agent, change the rules, and troubleshoot the flows without putting unfinished changes into UAT or Prod.
+
+Keeping the agent, flows, rule table, and connection references together in one unmanaged solution gives me an editable starting point and a package I can export and track in Git. It also keeps this project separate from the Default environment, which my lab design reserves for personal productivity.
+
+Dev is the first step in my application lifecycle management (ALM) approach. UAT is where a release would be checked before production, and Prod is where approved changes would be deployed. This Concierge implementation has been built and demonstrated in Dev; I have not promoted it to UAT or Prod.
+
+For instructions on setting up that environment structure, access controls, deployment pipelines, and approvals, visit my [Zava Power Platform ALM lab repository](https://github.com/aandino-zava/zava-power-platform-lab). Start with its [architecture and rationale](https://github.com/aandino-zava/zava-power-platform-lab/blob/main/docs/architecture-and-rationale.md), then follow the [deployment runbook](https://github.com/aandino-zava/zava-power-platform-lab/blob/main/docs/deployment-runbook.md).
 
 ## Design Rationale
 

@@ -8,7 +8,7 @@ Two scenarios I had orriginally planned for were left untested.
 - **Purpose:** verify normal meeting with no conflict behavior.
 - **Setup:** Create a normal event with only an adjacent, non-overlapping event.
 - **Expected:** No search, move, or notification.
-- **Observed:** The first automatic run moved the meeting unnecessarily. After correcting the overlap check, a direct flow test found no conflict and made no calendar update. We did not repeat the complete automatic process after that fix.
+- **Observed:** The first automatic run moved the meeting unnecessarily. After correcting the overlap check, a direct flow test found no conflict and made no calendar update. I did not repeat the complete automatic process after that fix.
 - **Status:** Partial — the corrected flow passed; the complete automatic process was not retested.
 - **Components:** Agent, conflict filter, Gatekeeper.
 - **Evidence:** The recorded flow run showed an empty conflict list and no calendar update. This supports the flow fix, but does not establish that the complete automatic process passed.
@@ -33,7 +33,7 @@ Two scenarios I had orriginally planned for were left untested.
 - **Observed:** Final automatic run moved normal to 11:30 AM–12:00 PM EDT; board unchanged. Success message appeared in Sent Items at 3:30 PM September 30. Recipient delivery/read not verified.
 - **Status:** Passed.
 - **Components:** Trigger, agent, Gatekeeper, notification.
-- **Evidence:** Both flows completed successfully. A refreshed calendar showed the normal meeting at its new time and the board meeting unchanged. Outlook Sent Items also showed the success notification with both meetings and the old and new times. We did not verify delivery to the recipient's inbox.
+- **Evidence:** Both flows completed successfully. A refreshed calendar showed the normal meeting at its new time and the board meeting unchanged. Outlook Sent Items also showed the success notification with both meetings and the old and new times. I did not verify delivery to the recipient's inbox.
 
 
 ## Attempted protected board modification
@@ -52,7 +52,7 @@ Two scenarios I had orriginally planned for were left untested.
 - **Purpose:** verify case insensitive protection behavior.
 - **Setup:** Use uppercase, title-case, and lowercase board-meeting subjects.
 - **Expected:** Interpret subject-based rule without case dependence.
-- **Observed:** The uppercase example passed in a direct flow test. Title-case and lowercase examples passed during agent demonstrations. We did not test every possible spelling or capitalization.
+- **Observed:** The uppercase example passed in a direct flow test. Title-case and lowercase examples passed during agent demonstrations. I did not test every possible spelling or capitalization.
 - **Status:** Passed for observed cases.
 - **Components:** Agent interpretation and Gatekeeper.
 - **Evidence:** The build notes record protection working for “BOARD MEETING,” “Q4 Board Meeting,” and a lowercase “board meeting” subject. These were individual checks during the build, rather than a complete test of every variation.
@@ -77,7 +77,7 @@ Two scenarios I had orriginally planned for were left untested.
 - **Observed:** Not tested. This scenario was left outside the final demonstration scope.
 - **Status:** Not tested — removed from the remaining test scope by agreement.
 - **Components:** Agent search and notification.
-- **Evidence:** We did not run a calendar example with every eligible replacement time unavailable. The no-slot behavior remains an instruction that still needs a dedicated test.
+- **Evidence:** I did not run a calendar example with every eligible replacement time unavailable. The no-slot behavior remains an instruction that still needs a dedicated test.
 
 
 ## Dynamic Dataverse rule modification

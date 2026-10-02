@@ -8,6 +8,10 @@ This folder contains the actual solution exported from Zava PP Lab Dev on Octobe
 
 The platform-generated names and references are preserved so the files stay consistent with the deployed solution.
 
+## Why this is a Dev export
+
+I exported the unmanaged solution from Dev because that is where I make and test changes. It is the editable source for a future release; it is not evidence of a UAT or production deployment. The [README explains the rationale](../README.md#why-i-built-this-in-dev), and my [Power Platform ALM lab](https://github.com/aandino-zava/zava-power-platform-lab) explains how to set up the wider release process.
+
 ## What was checked
 
 The export completed successfully, and Microsoft's tooling was able to rebuild the source files into a solution ZIP. The saved files also passed format checks.
