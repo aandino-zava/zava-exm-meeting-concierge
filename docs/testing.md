@@ -2,7 +2,7 @@
 
 These results come from the September 30 build. The calendar examples used meetings scheduled for October 1. We did not run the tests again when creating the repository.
 
-Each Evidence entry explains what was checked or recorded. The separate [evidence register](../tests/evidence/README.md) keeps the run references for anyone who needs to investigate further. Two scenarios were deliberately left untested, and the final automatic no-conflict scenario was not repeated after its fix.
+Each Evidence entry explains what was checked and what that check supports. Two scenarios were deliberately left untested, and the final automatic no-conflict scenario was not repeated after its fix.
 
 ## Normal meeting with no conflict
 
@@ -23,7 +23,7 @@ Each Evidence entry explains what was checked or recorded. The separate [evidenc
 - **Observed:** Live agent demonstration moved the normal event from 14:00–14:30 UTC to 14:30–15:00 UTC on October 1; Graph confirmed board unchanged.
 - **Status:** Passed.
 - **Components:** Agent, Graph, Gatekeeper.
-- **Evidence:** During the live agent demonstration, a follow-up calendar read confirmed that the normal meeting had moved and the board meeting had stayed at its original time. The implementation notes record that check; a separate run reference was not saved for this demonstration.
+- **Evidence:** During the live agent demonstration, a follow-up calendar read confirmed that the normal meeting had moved and the board meeting had stayed at its original time.
 
 
 ## New board meeting conflicting with normal meeting
@@ -56,7 +56,7 @@ Each Evidence entry explains what was checked or recorded. The separate [evidenc
 - **Observed:** The uppercase example passed in a direct flow test. Title-case and lowercase examples passed during agent demonstrations. We did not test every possible spelling or capitalization.
 - **Status:** Passed for observed cases.
 - **Components:** Agent interpretation and Gatekeeper.
-- **Evidence:** The build notes record protection working for “BOARD MEETING,” “Q4 Board Meeting,” and a lowercase “board meeting” subject. These were individual checks during the build; a separate run record for every variation was not retained.
+- **Evidence:** The build notes record protection working for “BOARD MEETING,” “Q4 Board Meeting,” and a lowercase “board meeting” subject. These were individual checks during the build, rather than a complete test of every variation.
 
 
 ## Two board meetings conflicting
@@ -64,7 +64,7 @@ Each Evidence entry explains what was checked or recorded. The separate [evidenc
 - **Purpose:** verify two board meetings conflicting behavior.
 - **Setup:** Two protected meetings overlap. Setup was not executed as a final scenario.
 - **Expected:** Neither moves; qualifying new protected conflict is reported.
-- **Observed:** Not tested. User waived the remaining scenario.
+- **Observed:** Not tested. This scenario was left outside the final demonstration scope.
 - **Status:** Not tested — removed from the remaining test scope by agreement.
 - **Components:** Agent selection, Gatekeeper, notification.
 - **Evidence:** This scenario was not run, so there is no observed result to support a pass or failure. The expected behavior above describes what the agent is instructed to do.
@@ -75,7 +75,7 @@ Each Evidence entry explains what was checked or recorded. The separate [evidenc
 - **Purpose:** verify no replacement slot behavior.
 - **Setup:** A movable conflicting event has no qualifying slot within two business days. Setup was not executed as a final scenario.
 - **Expected:** Leave unchanged and report no-slot outcome; notify if qualifying.
-- **Observed:** Not tested. User waived the remaining scenario.
+- **Observed:** Not tested. This scenario was left outside the final demonstration scope.
 - **Status:** Not tested — removed from the remaining test scope by agreement.
 - **Components:** Agent search and notification.
 - **Evidence:** We did not run a calendar example with every eligible replacement time unavailable. The no-slot behavior remains an instruction that still needs a dedicated test.
@@ -106,4 +106,4 @@ Each Evidence entry explains what was checked or recorded. The separate [evidenc
 
 Earlier runs exposed connection problems and a mix-up between the requested end time and the explanation for the move. The agent tool's input descriptions were corrected before the final successful run. Those earlier failures are not counted as passes. We did not repeat the complete process after the project rename or during the repository work.
 
-The [evidence register](../tests/evidence/README.md) is a written record of checks made during implementation, with run references where available. It is not a collection of exported service logs. Mailbox screenshots and raw service responses remain outside this repository because they contain unnecessary account details. Package and file checks are covered separately in [validation](validation.md).
+These results describe the behavior observed during the build. They do not guarantee every possible calendar situation will work. Mailbox screenshots and raw service responses are not included because they contain account details. The [solution instructions](../solution/README.md#what-was-checked) separately explain what was checked in the exported package.

@@ -11,7 +11,6 @@
 .azure/
 .pac/
 .tools/
-.codex/
 # Local tools and generated validation output
 node_modules/
 __pycache__/

@@ -6,7 +6,7 @@ I built Zava ExM Meeting Concierge to explore a practical governance problem: ho
 
 This proof of concept uses one Copilot Studio agent, two Power Automate flows, Microsoft Graph, and natural-language rules in Dataverse. The agent identifies conflicts and proposes a new time. **Every calendar write goes through `ModifycalendarWithRuleCheck`, which reads the event and policy again before allowing a change.**
 
-This repository contains the actual unmanaged solution exported from Zava PP Lab Dev on October 1, 2026, plus human-authored architecture and implementation notes. It is a demonstrated lab implementation, not a production-readiness claim.
+This repository contains the actual unmanaged solution exported from Zava PP Lab Dev on October 1, 2026, plus architecture and implementation notes. It is a demonstrated lab implementation, not a production-readiness claim.
 
 ---
 
@@ -108,8 +108,7 @@ The export declares a Microsoft AI Classify dependency. Earlier setup tools are 
 
 - [solution](solution/README.md): original export ZIP, native PAC-unpacked assets, and provenance.
 - [architecture](architecture/architecture.mmd): Mermaid source and specifications for the agent, flows, table, and tools.
-- [docs](docs/architecture.md): architecture, implementation, Gatekeeper, testing, security, and validation.
-- [tests/evidence](tests/evidence/README.md): sanitized historical observation records and run references.
+- [docs](docs/architecture.md): architecture, implementation, Gatekeeper, testing, and security.
 - [scripts](scripts/README.md): reproducible export, pack, and static validation commands.
 
 Actual JSON, XML, and bot YAML definitions remain under `solution/unpacked`. The architecture Markdown is explanatory; it is not a reconstructed export.

@@ -1,21 +1,33 @@
 # Zava ExM Meeting Concierge solution assets
 
-`exports/ZavaExMMeetingConcierge_1_0_0_0_unmanaged.zip` is the original unmanaged PAC export from Zava PP Lab Dev. `unpacked/` is PAC's native unpacked representation; files were not manually reconstructed or renamed. `provenance.json` records hashes and component counts.
+This folder contains the actual solution exported from Zava PP Lab Dev on October 1, 2026.
 
-Exported on October 1, 2026 using PAC 2.12.2. The source environment was confirmed through `pac auth list`, `pac org list`, `pac org who --environment`, and `pac solution list --environment` before export. The display name was already correct. The retained internal unique name is used only where the tooling requires it.
+- **`exports/`** contains the original unmanaged ZIP—the Power Platform package used for import.
+- **`unpacked/`** contains the same solution separated into files by Microsoft's Power Platform CLI, so changes to the flows, agent, and table can be reviewed in Git.
+- **`provenance.json`** records the export version, component counts, and file fingerprints. Those fingerprints help detect whether the saved export has changed.
 
-PAC successfully repacked the unpacked tree into an unmanaged ZIP. That validates local packaging, not import or runtime behavior in a second environment. The repacked QA file is not committed; recreate it with the pack script.
+The platform-generated names and references are preserved so the files stay consistent with the deployed solution.
 
-## Included
+## What was checked
 
-Agent and bot configuration, 22 bot components, two workflow definitions and metadata, the rule table with forms/views/relationships, five connection references, generated AI Skill Config, and solution metadata.
+The export completed successfully, and Microsoft's tooling was able to rebuild the source files into a solution ZIP. The saved files also passed format checks.
 
-## Not carried by this export
+That gives another developer a usable starting package and source files that can be rebuilt. It does **not** prove the solution has been deployed successfully in another environment. That still requires the right connections, settings, and a separate test.
 
-OAuth connection credentials, active governance data row, calendar fixtures, email messages, run history, and a formal evaluation set. No environment-variable definitions were present. Tool enablement needs review after import because retained setup tools do not have an unambiguous disabled marker in this export.
+Calendar behavior was checked during the build. See the [test results](../docs/testing.md) for what worked, what needed a fix, and what was not tested.
 
-## Dependency
+## What is included
 
-Solution.xml declares AI Classify from Microsoft PowerAI / msdyn_AISolutionDefaultTemplates, version 202608.1.4.1. This Microsoft template is an external dependency, not a missing custom artifact manually recreated here. Ensure it is available in the destination.
+The package contains one agent, two flows, the governance table, five connection references, 22 agent components, a generated AI Skill Config, and the supporting platform definitions.
 
-See [implementation and import notes](../docs/implementation.md) before enabling the imported automation. Fixed lab configuration remains in the private baseline.
+## What needs configuration after import
+
+The package does not carry account sign-ins, the active rule stored in Dataverse, calendar meetings, emails, or run history. Add the starting rule and connect the intended accounts.
+
+The calendar and assistant recipient are fixed to the lab's values. Review them before enabling the automation. Also check the model and enabled tools: earlier setup tools remain in the export, and the files do not clearly show which were disabled in the editor.
+
+## Required Microsoft component
+
+The Gatekeeper uses Microsoft's AI Classify component. It must be available in the destination environment. The exact dependency is recorded in `unpacked/Other/Solution.xml` as PowerAI / msdyn_AISolutionDefaultTemplates, version 202608.1.4.1.
+
+Follow the [setup instructions](../docs/implementation.md) before turning on the imported solution.
