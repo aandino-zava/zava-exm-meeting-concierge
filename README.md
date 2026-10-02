@@ -8,6 +8,25 @@ This proof of concept uses one Copilot Studio agent, two Power Automate flows, M
 
 This repository contains the actual unmanaged solution exported from Zava PP Lab Dev on October 1, 2026, plus human-authored architecture and implementation notes. It is a demonstrated lab implementation, not a production-readiness claim.
 
+---
+
+## Design Rationale
+
+In enterprise environments, generative models and LLM agents operate probabilistically. While valuable for intent classification, entity extraction, and conversational synthesis, **unconstrained agents must never possess direct mutation rights (write/update/delete) on core enterprise systems of record**. 
+
+If business rules are embedded directly into prompt instructions, systems become vulnerable to:
+1. **Prompt injection & jailbreaking** (malicious or unintended user prompts overriding rules).
+2. **Instruction drift & hallucination** (model probabilistic variance causing rule bypass).
+3. **Rigid deployment cycles** (requiring AI engineers to alter prompts whenever business policies change).
+
+### The Solution: The Decoupled "Dual-Check" Gatekeeper Architecture
+This POC decouples policy, intelligence, and execution:
+* **Decoupled Policy (Dataverse):** Business rules live dynamically in a secure Dataverse table, manageable by executive admins without code deployment.
+* **Bounded Intelligence (Copilot Studio Agent):** The agent receives read-only context to inspect schedules and evaluate rules, but is **intentionally denied direct calendar modification tools**.
+* **Deterministic Gatekeeper Flow (`ModifycalendarWithRuleCheck`):** When the agent proposes a modification, it must invoke a secondary, deterministic workflow. This flow independently queries the Dataverse rule engine, validates the target event against enterprise protection criteria, and executes the Graph API mutation only upon verification.
+
+---
+
 ## Architecture
 
 ```mermaid
