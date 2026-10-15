@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<environmentvariabledefinition schemaname="cr9b0_CalendarId">
+  <description default="Outlook primary calendar ID for the same account used by the Outlook connection.">
+    <label description="Outlook primary calendar ID for the same account used by the Outlook connection." languagecode="1033" />
+  </description>
+  <displayname default="Calendar ID">
+    <label description="Calendar ID" languagecode="1033" />
+  </displayname>
+  <introducedversion>2.1.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>1</isrequired>
+  <type>100000000</type>
+</environmentvariabledefinition>

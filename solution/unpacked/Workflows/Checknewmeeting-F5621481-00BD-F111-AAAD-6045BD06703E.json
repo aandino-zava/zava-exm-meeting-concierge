@@ -1,0 +1,104 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr9b0_sharedoffice365_2e7d8"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      },
+      "shared_microsoftcopilotstudio": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr9b0_sharedmicrosoftcopilotstudio_52e72"
+        },
+        "api": {
+          "name": "shared_microsoftcopilotstudio"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Calendar mailbox (cr9b0_CalendarMailbox)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_CalendarMailbox"
+          }
+        },
+        "Calendar ID (cr9b0_CalendarId)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_CalendarId"
+          }
+        },
+        "Executive assistant email (cr9b0_ExecutiveAssistantEmail)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_ExecutiveAssistantEmail"
+          }
+        }
+      },
+      "triggers": {
+        "When_a_new_event_is_created_(V3)": {
+          "recurrence": {
+            "interval": 1,
+            "frequency": "Minute"
+          },
+          "splitOn": "@triggerOutputs()?['body/value']",
+          "metadata": {
+            "operationMetadataId": "c0511483-e6d0-4202-919d-5dfe9c760168"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "table": "@parameters('Calendar ID (cr9b0_CalendarId)')"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+              "operationId": "CalendarGetOnNewItemsV3",
+              "connectionName": "shared_office365"
+            }
+          }
+        }
+      },
+      "actions": {
+        "Execute_Agent_and_wait": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "baeef55c-cd23-4d56-9dbc-356fcaf9c829"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "parameters": {
+              "Copilot": "cr9b0_ZavaCalendarGovernanceAgent",
+              "body/message": "Check the newly created meeting with eventId: @{triggerOutputs()?['body/id']}. Call Check and move meeting once with this new meeting ID and report the returned result. The flow handles scheduling, fixed rules, and unresolved-conflict email. Do not search for a time or send an email yourself."
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_microsoftcopilotstudio",
+              "operationId": "ExecuteCopilotAsyncV2",
+              "connectionName": "shared_microsoftcopilotstudio"
+            }
+          }
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

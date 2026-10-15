@@ -1,24 +1,21 @@
 kind: TaskDialog
 inputs:
   - kind: AutomaticTaskInput
-    propertyName: text_2
-    description: Required END timestamp of the proposed replacement interval, in ISO8601 UTC ending Z, for example 2026-10-01T16:00:00Z. This input is requestedEnd (text_2). Supply only the end timestamp, never an explanation.
-
-  - kind: AutomaticTaskInput
-    propertyName: text_3
-    description: Informational natural-language explanation of why this specific event should move. This input is reason (text_3). Supply prose only, never a timestamp. This explanation is not authorization and is not used for rule enforcement.
-
-modelDisplayName: ModifycalendarWithRuleCheck
-modelDescription: The only authorized way to modify a calendar event. Independently fetches the actual event from Microsoft Graph and re-queries current active Dataverse rules. AI interprets those current rules and the flow fails closed unless the move is allowed and preserves duration. Supply the actual eventId and requestedStart/requestedEnd as ISO8601 UTC timestamps ending Z, plus an informational reason. Call only after finding an available slot within the next two business days during working hours. Surface result verbatim for a rejection and only report success when the result confirms a successful move.
+    propertyName: text
+    description: The exact eventId from the new meeting request. Pass only that ID.
+modelDisplayName: Check and move meeting
+modelDescription: Use this flow once for the NEW meeting ID. It reads the actual calendar and active rules, protects board meetings with fixed checks, finds a free time within two business days, preserves duration, verifies any change, and emails the assistant only if a confirmed conflict remains unresolved. Do not choose another meeting ID or supply a proposed time. Return its actual result. It is the only calendar change path.
 outputs:
   - propertyName: result
-
+  - propertyName: status
+  - propertyName: movedCount
+  - propertyName: needsHelp
+  - propertyName: notificationSent
 action:
   kind: InvokeFlowTaskAction
   flowId: 80614549-fdbc-f111-aaad-6045bd067e6d
   connectionProperties:
     $kind: ConnectionProperties
-    diagnostics:
+    diagnostics: null
     mode: Invoker
-
 outputMode: All

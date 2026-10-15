@@ -1,17 +1,25 @@
-# Zava ExM Meeting Concierge repository security
+# Security and governance
 
-The repository starts private and must not become public without explicit approval. The baseline preserves the actual exported solution rather than replacing working values inside native definitions.
+The fixed workflow is the only configured calendar write path. It reads event details itself and recognizes only the supported board-protection rule. Meeting text and model output cannot grant permission. Active rules are checked again before every move.
 
-## Retained environment configuration
+Calendar PATCH uses a fresh ETag with If-Match. Automatic write retries are disabled. A destination read reduces scheduling races; it cannot reserve the slot. A post-write read checks the actual outcome. Uncertain results are left for review.
 
-The unchanged export includes the fixed executive assistant address, a mailbox address in an earlier setup tool description, a lab calendar identifier, bot and workflow identifiers, connection-reference names, and platform metadata. The address values occur in the notification action and retained getSchedule tool. These are not authentication credentials, but require review before public release. The original ZIP includes the same values.
+Portable installations bind their own target-tenant connections. Earlier Dev evidence used the approved lab account. This repository refresh does not change live permissions or prove least-privilege role assignments. Protect connection ownership and restrict who can edit the agent, flows, and rules. Flow run history can contain calendar data; review retention and access before wider use.
 
-Reader-facing documentation uses generic recipient/calendar descriptions. No claim is made that the native export is anonymized. A future public release should use an explicitly reviewed, separately derived configuration baseline or a cleaned deployment/export, retaining provenance and dependency integrity.
+The current starter has no concurrency control configured. Parallel automatic or direct calls lack a durable mailbox lock and request ledger. Caller identity binding, duplicate notification prevention across repeated requests, role verification, environment separation, and release approvals remain production work. Do not present this single-calendar Dev pilot as production-ready.
 
-## Excluded material
+See the [architecture](architecture.md) for supported behavior and limits.
 
-No token caches, authentication profiles, cookies, passwords, private certificates, .env files, local tools, temporary QA dependencies, raw run payloads, mailbox screenshots, implementation Word report, or unrelated workspace files are included. Ordinary XML element names such as Token and workflow $authentication placeholders are definitions, not stored credentials.
+The user approved the existing lab owner Outlook connection for automatic requests on October 15, 2026. The saved resolver now uses that embedded connection, as does Dataverse. Existing run-only callers can reach the lab mailbox only through the configured flow path; flow sharing was not expanded. Review these callers before a wider rollout. This is a single-calendar service identity choice, not verified production identity isolation.
 
-## Review method
+## Portable installation
 
-The validation script scans all candidate text files and archive members for credential signatures, JWTs, private keys, bearer values, and signed-token parameters; checks for authentication-cache filenames; parses native JSON, XML, and bot YAML; and inventories address/name occurrences by file without printing their values. The native export was also reviewed for fixed configuration and connection definitions. This is a targeted static review, not a guarantee that every possible secret format is detected.
+The solution ships no mailbox, calendar ID, assistant recipient, or connection credentials in current flow settings. Required environment variables and connection mappings select the target configuration. They are administered by the installer, not supplied by the agent. Both flows are packaged off; verify their state when updating an existing installation. Missing or malformed email configuration stops processing before calendar access.
+
+The installer must verify that the Outlook connection account, configured mailbox, and primary Calendar ID agree. This is not enforced by an identity comparison in the flow. Keep agent access and run-only sharing limited to intended POC users, configure authentication after import, and avoid anonymous/public exposure. Environment variable values are configuration rather than secret storage. The historical exports retain lab configuration as evidence; the portable package does not use those values.
+
+## GitHub deployment identity
+
+The receiving tenant authorizes a dedicated Dataverse application user and a GitHub environment federated credential. The deployment job alone has `id-token: write`; build jobs have no tenant credentials. Deployment is manual, restricted to main, and uses the checked build artifact. Configure the GitHub environment's main-only branch policy as documented, plus approvals where supported. Pinning action commits limits unexpected upstream action changes.
+
+No client secret or user password is stored for workflow sign-in. Target settings are an environment secret, are written only to temporary runner storage, and are not uploaded with build artifacts. PAC profiles and the temporary settings file are cleared after a deployment attempt. The application user's deployment role and connection access remain the receiving administrator's responsibility; broad POC administrator access is not a least-privilege production design.

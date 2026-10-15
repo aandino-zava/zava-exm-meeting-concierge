@@ -1,0 +1,1027 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr9b0_sharedoffice365_2e7d8"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      },
+      "shared_commondataserviceforapps": {
+        "impersonation": {},
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "2.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "Calendar mailbox (cr9b0_CalendarMailbox)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_CalendarMailbox"
+          }
+        },
+        "Executive assistant email (cr9b0_ExecutiveAssistantEmail)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_ExecutiveAssistantEmail"
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "70390418-ed0a-4df5-89de-37ac185239ff"
+          },
+          "type": "Request",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "eventId",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "ID of the new meeting. The flow reads the meeting, checks the rules, finds a free time, and confirms any move.",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Start_request": {
+          "runAfter": {},
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Status",
+                "type": "string",
+                "value": "UnableToCheck"
+              },
+              {
+                "name": "ConflictFound",
+                "type": "boolean",
+                "value": false
+              },
+              {
+                "name": "Targets",
+                "type": "array",
+                "value": []
+              },
+              {
+                "name": "Candidate",
+                "type": "string",
+                "value": ""
+              },
+              {
+                "name": "Slot",
+                "type": "string",
+                "value": ""
+              },
+              {
+                "name": "MovedCount",
+                "type": "integer",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "Check_configuration": {
+          "runAfter": {
+            "Start_request": [
+              "Succeeded"
+            ]
+          },
+          "type": "ParseJson",
+          "inputs": {
+            "content": {
+              "mailbox": "@parameters('Calendar mailbox (cr9b0_CalendarMailbox)')",
+              "assistant": "@parameters('Executive assistant email (cr9b0_ExecutiveAssistantEmail)')"
+            },
+            "schema": {
+              "type": "object",
+              "required": [
+                "mailbox",
+                "assistant"
+              ],
+              "properties": {
+                "mailbox": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+                },
+                "assistant": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+                }
+              }
+            }
+          }
+        },
+        "Check_and_resolve": {
+          "actions": {
+            "Read_new_meeting": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "Uri": "https://graph.microsoft.com/v1.0/me/events/@{encodeUriComponent(triggerBody()?['text'])}?$select=id,subject,start,end,isCancelled,showAs,type,originalStartTimeZone,isAllDay",
+                  "Method": "GET",
+                  "ContentType": "application/json",
+                  "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_office365"
+                }
+              }
+            },
+            "Read_current_conflicts": {
+              "runAfter": {
+                "Read_new_meeting": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "Uri": "https://graph.microsoft.com/v1.0/me/calendar/calendarView?startDateTime=@{concat(formatDateTime(body('Read_new_meeting')?['start']?['dateTime'],'yyyy-MM-ddTHH:mm:ss.fffffff'),'Z')}&endDateTime=@{concat(formatDateTime(body('Read_new_meeting')?['end']?['dateTime'],'yyyy-MM-ddTHH:mm:ss.fffffff'),'Z')}&$select=id,subject,start,end,isCancelled,showAs,type&$top=1000",
+                  "Method": "GET",
+                  "ContentType": "application/json",
+                  "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                  "operationId": "HttpRequest",
+                  "connectionName": "shared_office365"
+                }
+              }
+            },
+            "Current_conflicts": {
+              "runAfter": {
+                "Read_current_conflicts": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@body('Read_current_conflicts')?['value']",
+                "where": "@and(not(equals(item()?['id'],body('Read_new_meeting')?['id'])),equals(item()?['isCancelled'],false),not(equals(item()?['showAs'],'free')),less(ticks(item()?['start']?['dateTime']),ticks(body('Read_new_meeting')?['end']?['dateTime'])),greater(ticks(item()?['end']?['dateTime']),ticks(body('Read_new_meeting')?['start']?['dateTime'])))"
+              }
+            },
+            "Conflict_exists": {
+              "actions": {
+                "Remember_conflict": {
+                  "runAfter": {},
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "ConflictFound",
+                    "value": true
+                  }
+                },
+                "Mark_unresolved": {
+                  "runAfter": {
+                    "Remember_conflict": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "Status",
+                    "value": "NeedsHelp"
+                  }
+                },
+                "Read_rules": {
+                  "runAfter": {
+                    "Mark_unresolved": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "entityName": "cr9b0_calendargovernancerules",
+                      "$select": "cr9b0_name,cr9b0_ruletext,cr9b0_calendargovernanceruleid",
+                      "$filter": "statecode eq 0"
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "connectionName": "shared_commondataserviceforapps"
+                    }
+                  }
+                },
+                "Match_supported_rules": {
+                  "runAfter": {
+                    "Read_rules": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@body('Read_rules')?['value']",
+                    "where": "@equals(toLower(trim(coalesce(item()?['cr9b0_ruletext'],''))),'board meetings are critical and cannot be moved. any meeting that has \"board meeting\" in the subject is considered a board meeting.')"
+                  }
+                },
+                "Checks_are_complete": {
+                  "actions": {
+                    "Protected_conflicts": {
+                      "runAfter": {},
+                      "type": "Query",
+                      "inputs": {
+                        "from": "@body('Current_conflicts')",
+                        "where": "@contains(toLower(coalesce(item()?['subject'],'')),'board meeting')"
+                      }
+                    },
+                    "New_meeting_is_protected": {
+                      "actions": {
+                        "Two_protected_meetings": {
+                          "actions": {
+                            "Choose_conflicting_meetings": {
+                              "runAfter": {},
+                              "type": "SetVariable",
+                              "inputs": {
+                                "name": "Targets",
+                                "value": "@body('Current_conflicts')"
+                              }
+                            }
+                          },
+                          "runAfter": {},
+                          "else": {
+                            "actions": {}
+                          },
+                          "expression": "@empty(body('Protected_conflicts'))",
+                          "type": "If"
+                        }
+                      },
+                      "runAfter": {
+                        "Protected_conflicts": [
+                          "Succeeded"
+                        ]
+                      },
+                      "else": {
+                        "actions": {
+                          "Choose_new_meeting": {
+                            "runAfter": {},
+                            "type": "SetVariable",
+                            "inputs": {
+                              "name": "Targets",
+                              "value": "@createArray(body('Read_new_meeting'))"
+                            }
+                          }
+                        }
+                      },
+                      "expression": "@contains(toLower(coalesce(body('Read_new_meeting')?['subject'],'')),'board meeting')",
+                      "type": "If"
+                    }
+                  },
+                  "runAfter": {
+                    "Match_supported_rules": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "expression": "@and(and(not(empty(body('Read_rules')?['value'])),empty(body('Read_rules')?['@odata.nextLink']),equals(length(body('Match_supported_rules')),length(body('Read_rules')?['value']))),empty(body('Read_current_conflicts')?['@odata.nextLink']),not(equals(body('Read_current_conflicts')?['value'],null)),equals(body('Read_new_meeting')?['isCancelled'],false),not(equals(body('Read_new_meeting')?['showAs'],'free')),equals(body('Read_new_meeting')?['isAllDay'],false),equals(body('Read_new_meeting')?['type'],'singleInstance'))",
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "Current_conflicts": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "No_conflict": {
+                    "actions": {
+                      "Mark_no_conflict": {
+                        "runAfter": {},
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "Status",
+                          "value": "NoConflict"
+                        }
+                      }
+                    },
+                    "runAfter": {},
+                    "else": {
+                      "actions": {}
+                    },
+                    "expression": "@and(not(equals(body('Read_current_conflicts')?['value'],null)),empty(body('Read_current_conflicts')?['@odata.nextLink']))",
+                    "type": "If"
+                  }
+                }
+              },
+              "expression": "@not(empty(body('Current_conflicts')))",
+              "type": "If"
+            },
+            "Resolve_selected_meetings": {
+              "actions": {
+                "For_each_meeting": {
+                  "foreach": "@variables('Targets')",
+                  "actions": {
+                    "Read_meeting_to_move": {
+                      "runAfter": {},
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "Uri": "https://graph.microsoft.com/v1.0/me/events/@{encodeUriComponent(items('For_each_meeting')?['id'])}?$select=id,subject,start,end,isCancelled,showAs,type,originalStartTimeZone,isAllDay",
+                          "Method": "GET",
+                          "ContentType": "application/json",
+                          "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                          "operationId": "HttpRequest",
+                          "connectionName": "shared_office365"
+                        }
+                      }
+                    },
+                    "Meeting_is_movable": {
+                      "actions": {
+                        "Read_working_hours": {
+                          "runAfter": {},
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "Uri": "https://graph.microsoft.com/v1.0/me/calendar/getSchedule",
+                              "Method": "POST",
+                              "ContentType": "application/json",
+                              "CustomHeader1": "Prefer: outlook.timezone=\"UTC\"",
+                              "Body": "{\"schedules\": [\"@{parameters('Calendar mailbox (cr9b0_CalendarMailbox)')}\"], \"startTime\": {\"dateTime\": \"@{body('Read_meeting_to_move')?['start']?['dateTime']}\", \"timeZone\": \"UTC\"}, \"endTime\": {\"dateTime\": \"@{body('Read_meeting_to_move')?['end']?['dateTime']}\", \"timeZone\": \"UTC\"}, \"availabilityViewInterval\": 30}"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                              "operationId": "HttpRequest",
+                              "connectionName": "shared_office365"
+                            }
+                          }
+                        },
+                        "Working_hours": {
+                          "runAfter": {
+                            "Read_working_hours": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Compose",
+                          "inputs": "@first(body('Read_working_hours')?['value'])?['workingHours']"
+                        },
+                        "Working_timezone": {
+                          "runAfter": {
+                            "Working_hours": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Compose",
+                          "inputs": "@outputs('Working_hours')?['timeZone']?['name']"
+                        },
+                        "First_search_day": {
+                          "runAfter": {
+                            "Working_timezone": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Compose",
+                          "inputs": "@formatDateTime(convertFromUtc(concat(formatDateTime(body('Read_meeting_to_move')?['start']?['dateTime'],'yyyy-MM-ddTHH:mm:ss.fffffff'),'Z'),outputs('Working_timezone')),'yyyy-MM-dd')"
+                        },
+                        "Last_search_day": {
+                          "runAfter": {
+                            "First_search_day": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Compose",
+                          "inputs": "@formatDateTime(addDays(concat(outputs('First_search_day'),'T00:00:00'),if(or(equals(dayOfWeek(concat(outputs('First_search_day'),'T00:00:00')),4),equals(dayOfWeek(concat(outputs('First_search_day'),'T00:00:00')),5)),4,if(equals(dayOfWeek(concat(outputs('First_search_day'),'T00:00:00')),6),3,2))),'yyyy-MM-dd')"
+                        },
+                        "Meeting_length": {
+                          "runAfter": {
+                            "Last_search_day": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Compose",
+                          "inputs": "@div(sub(ticks(body('Read_meeting_to_move')?['end']?['dateTime']),ticks(body('Read_meeting_to_move')?['start']?['dateTime'])),10000000)"
+                        },
+                        "Read_busy_times": {
+                          "runAfter": {
+                            "Meeting_length": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "Uri": "https://graph.microsoft.com/v1.0/me/calendar/calendarView?startDateTime=@{convertToUtc(concat(outputs('First_search_day'),'T00:00:00'),outputs('Working_timezone'))}&endDateTime=@{convertToUtc(concat(outputs('Last_search_day'),'T23:59:59'),outputs('Working_timezone'))}&$select=id,subject,start,end,isCancelled,showAs,type&$top=1000",
+                              "Method": "GET",
+                              "ContentType": "application/json",
+                              "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                              "operationId": "HttpRequest",
+                              "connectionName": "shared_office365"
+                            }
+                          }
+                        },
+                        "Busy_events": {
+                          "runAfter": {
+                            "Read_busy_times": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Query",
+                          "inputs": {
+                            "from": "@body('Read_busy_times')?['value']",
+                            "where": "@and(not(equals(item()?['id'],items('For_each_meeting')?['id'])),equals(item()?['isCancelled'],false),not(equals(item()?['showAs'],'free')))"
+                          }
+                        },
+                        "Busy_intervals": {
+                          "runAfter": {
+                            "Busy_events": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Select",
+                          "inputs": {
+                            "from": "@body('Busy_events')",
+                            "select": {
+                              "start": "@item()?['start']?['dateTime']",
+                              "end": "@item()?['end']?['dateTime']"
+                            }
+                          }
+                        },
+                        "Sorted_busy_times": {
+                          "runAfter": {
+                            "Busy_intervals": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Compose",
+                          "inputs": "@sort(body('Busy_intervals'),'start')"
+                        },
+                        "Clear_slot": {
+                          "runAfter": {
+                            "Sorted_busy_times": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "Slot",
+                            "value": ""
+                          }
+                        },
+                        "For_each_day": {
+                          "foreach": "@range(0,5)",
+                          "actions": {
+                            "Check_working_day": {
+                              "actions": {
+                                "Day_start": {
+                                  "runAfter": {},
+                                  "type": "Compose",
+                                  "inputs": "@convertToUtc(concat(formatDateTime(addDays(concat(outputs('First_search_day'),'T00:00:00'),items('For_each_day')),'yyyy-MM-dd'),'T',outputs('Working_hours')?['startTime']),outputs('Working_timezone'))"
+                                },
+                                "Day_end": {
+                                  "runAfter": {
+                                    "Day_start": [
+                                      "Succeeded"
+                                    ]
+                                  },
+                                  "type": "Compose",
+                                  "inputs": "@convertToUtc(concat(formatDateTime(addDays(concat(outputs('First_search_day'),'T00:00:00'),items('For_each_day')),'yyyy-MM-dd'),'T',outputs('Working_hours')?['endTime']),outputs('Working_timezone'))"
+                                },
+                                "Earliest_start": {
+                                  "runAfter": {
+                                    "Day_end": [
+                                      "Succeeded"
+                                    ]
+                                  },
+                                  "type": "Compose",
+                                  "inputs": "@if(greater(ticks(outputs('Day_start')),ticks(body('Read_meeting_to_move')?['end']?['dateTime'])),outputs('Day_start'),concat(formatDateTime(body('Read_meeting_to_move')?['end']?['dateTime'],'yyyy-MM-ddTHH:mm:ss.fffffff'),'Z'))"
+                                },
+                                "Start_after_now": {
+                                  "runAfter": {
+                                    "Earliest_start": [
+                                      "Succeeded"
+                                    ]
+                                  },
+                                  "type": "Compose",
+                                  "inputs": "@if(greater(ticks(utcNow()),ticks(outputs('Earliest_start'))),utcNow(),outputs('Earliest_start'))"
+                                },
+                                "Set_candidate": {
+                                  "runAfter": {
+                                    "Start_after_now": [
+                                      "Succeeded"
+                                    ]
+                                  },
+                                  "type": "SetVariable",
+                                  "inputs": {
+                                    "name": "Candidate",
+                                    "value": "@outputs('Start_after_now')"
+                                  }
+                                },
+                                "For_each_busy_time": {
+                                  "foreach": "@outputs('Sorted_busy_times')",
+                                  "actions": {
+                                    "Next_candidate": {
+                                      "runAfter": {},
+                                      "type": "Compose",
+                                      "inputs": "@if(and(less(ticks(item()?['start']),ticks(addSeconds(variables('Candidate'),outputs('Meeting_length')))),greater(ticks(item()?['end']),ticks(variables('Candidate')))),concat(formatDateTime(item()?['end'],'yyyy-MM-ddTHH:mm:ss.fffffff'),'Z'),variables('Candidate'))"
+                                    },
+                                    "Use_next_candidate": {
+                                      "runAfter": {
+                                        "Next_candidate": [
+                                          "Succeeded"
+                                        ]
+                                      },
+                                      "type": "SetVariable",
+                                      "inputs": {
+                                        "name": "Candidate",
+                                        "value": "@outputs('Next_candidate')"
+                                      }
+                                    }
+                                  },
+                                  "runAfter": {
+                                    "Set_candidate": [
+                                      "Succeeded"
+                                    ]
+                                  },
+                                  "type": "Foreach",
+                                  "runtimeConfiguration": {
+                                    "concurrency": {
+                                      "repetitions": 1
+                                    }
+                                  }
+                                },
+                                "Candidate_fits": {
+                                  "actions": {
+                                    "Choose_slot": {
+                                      "runAfter": {},
+                                      "type": "SetVariable",
+                                      "inputs": {
+                                        "name": "Slot",
+                                        "value": "@variables('Candidate')"
+                                      }
+                                    }
+                                  },
+                                  "runAfter": {
+                                    "For_each_busy_time": [
+                                      "Succeeded"
+                                    ]
+                                  },
+                                  "else": {
+                                    "actions": {}
+                                  },
+                                  "expression": "@and(greaterOrEquals(ticks(variables('Candidate')),ticks(outputs('Day_start'))),lessOrEquals(ticks(addSeconds(variables('Candidate'),outputs('Meeting_length'))),ticks(outputs('Day_end'))))",
+                                  "type": "If"
+                                }
+                              },
+                              "runAfter": {},
+                              "else": {
+                                "actions": {}
+                              },
+                              "expression": "@and(empty(variables('Slot')),greater(dayOfWeek(addDays(concat(outputs('First_search_day'),'T00:00:00'),items('For_each_day'))),0),less(dayOfWeek(addDays(concat(outputs('First_search_day'),'T00:00:00'),items('For_each_day'))),6),contains(outputs('Working_hours')?['daysOfWeek'],toLower(formatDateTime(addDays(concat(outputs('First_search_day'),'T00:00:00'),items('For_each_day')),'dddd'))),lessOrEquals(ticks(addDays(concat(outputs('First_search_day'),'T00:00:00'),items('For_each_day'))),ticks(concat(outputs('Last_search_day'),'T00:00:00'))))",
+                              "type": "If"
+                            }
+                          },
+                          "runAfter": {
+                            "Clear_slot": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Foreach",
+                          "runtimeConfiguration": {
+                            "concurrency": {
+                              "repetitions": 1
+                            }
+                          }
+                        },
+                        "Slot_found": {
+                          "actions": {
+                            "Read_rules_before_move": {
+                              "runAfter": {},
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "entityName": "cr9b0_calendargovernancerules",
+                                  "$select": "cr9b0_name,cr9b0_ruletext,cr9b0_calendargovernanceruleid",
+                                  "$filter": "statecode eq 0"
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+                                  "operationId": "ListRecords",
+                                  "connectionName": "shared_commondataserviceforapps"
+                                }
+                              }
+                            },
+                            "Match_rules_before_move": {
+                              "runAfter": {
+                                "Read_rules_before_move": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "type": "Query",
+                              "inputs": {
+                                "from": "@body('Read_rules_before_move')?['value']",
+                                "where": "@equals(toLower(trim(coalesce(item()?['cr9b0_ruletext'],''))),'board meetings are critical and cannot be moved. any meeting that has \"board meeting\" in the subject is considered a board meeting.')"
+                              }
+                            },
+                            "Read_latest_meeting": {
+                              "runAfter": {
+                                "Match_rules_before_move": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "Uri": "https://graph.microsoft.com/v1.0/me/events/@{encodeUriComponent(items('For_each_meeting')?['id'])}?$select=id,subject,start,end,isCancelled,type,isAllDay",
+                                  "Method": "GET",
+                                  "ContentType": "application/json",
+                                  "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                                  "operationId": "HttpRequest",
+                                  "connectionName": "shared_office365"
+                                }
+                              }
+                            },
+                            "Read_destination": {
+                              "runAfter": {
+                                "Read_latest_meeting": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "parameters": {
+                                  "Uri": "https://graph.microsoft.com/v1.0/me/calendar/calendarView?startDateTime=@{variables('Slot')}&endDateTime=@{addSeconds(variables('Slot'),outputs('Meeting_length'))}&$select=id,subject,start,end,isCancelled,showAs,type&$top=1000",
+                                  "Method": "GET",
+                                  "ContentType": "application/json",
+                                  "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                                },
+                                "host": {
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                                  "operationId": "HttpRequest",
+                                  "connectionName": "shared_office365"
+                                }
+                              }
+                            },
+                            "Destination_conflicts": {
+                              "runAfter": {
+                                "Read_destination": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "type": "Query",
+                              "inputs": {
+                                "from": "@body('Read_destination')?['value']",
+                                "where": "@and(not(equals(item()?['id'],items('For_each_meeting')?['id'])),equals(item()?['isCancelled'],false),not(equals(item()?['showAs'],'free')),less(ticks(item()?['start']?['dateTime']),ticks(addSeconds(variables('Slot'),outputs('Meeting_length')))),greater(ticks(item()?['end']?['dateTime']),ticks(variables('Slot'))))"
+                              }
+                            },
+                            "Safe_to_move": {
+                              "actions": {
+                                "Move_meeting": {
+                                  "runAfter": {},
+                                  "type": "OpenApiConnection",
+                                  "inputs": {
+                                    "parameters": {
+                                      "Uri": "https://graph.microsoft.com/v1.0/me/events/@{encodeUriComponent(items('For_each_meeting')?['id'])}",
+                                      "Method": "PATCH",
+                                      "ContentType": "application/json",
+                                      "CustomHeader1": "Prefer: outlook.timezone=\"UTC\"",
+                                      "Body": "{\"start\": {\"dateTime\": \"@{convertFromUtc(variables('Slot'),outputs('Working_timezone'),'yyyy-MM-ddTHH:mm:ss')}\", \"timeZone\": \"@{outputs('Working_timezone')}\"}, \"end\": {\"dateTime\": \"@{convertFromUtc(addSeconds(variables('Slot'),outputs('Meeting_length')),outputs('Working_timezone'),'yyyy-MM-ddTHH:mm:ss')}\", \"timeZone\": \"@{outputs('Working_timezone')}\"}}",
+                                      "CustomHeader2": "If-Match: @{body('Read_latest_meeting')?['@odata.etag']}"
+                                    },
+                                    "host": {
+                                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                                      "operationId": "HttpRequest",
+                                      "connectionName": "shared_office365"
+                                    },
+                                    "retryPolicy": {
+                                      "type": "none"
+                                    }
+                                  }
+                                },
+                                "Verify_moved_meeting": {
+                                  "runAfter": {
+                                    "Move_meeting": [
+                                      "Succeeded"
+                                    ]
+                                  },
+                                  "type": "OpenApiConnection",
+                                  "inputs": {
+                                    "parameters": {
+                                      "Uri": "https://graph.microsoft.com/v1.0/me/events/@{encodeUriComponent(items('For_each_meeting')?['id'])}?$select=id,start,end",
+                                      "Method": "GET",
+                                      "ContentType": "application/json",
+                                      "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                                    },
+                                    "host": {
+                                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                                      "operationId": "HttpRequest",
+                                      "connectionName": "shared_office365"
+                                    }
+                                  }
+                                },
+                                "Move_is_confirmed": {
+                                  "actions": {
+                                    "Count_confirmed_move": {
+                                      "runAfter": {},
+                                      "type": "IncrementVariable",
+                                      "inputs": {
+                                        "name": "MovedCount",
+                                        "value": 1
+                                      }
+                                    }
+                                  },
+                                  "runAfter": {
+                                    "Verify_moved_meeting": [
+                                      "Succeeded"
+                                    ]
+                                  },
+                                  "else": {
+                                    "actions": {}
+                                  },
+                                  "expression": "@and(equals(ticks(body('Verify_moved_meeting')?['start']?['dateTime']),ticks(variables('Slot'))),equals(ticks(body('Verify_moved_meeting')?['end']?['dateTime']),ticks(addSeconds(variables('Slot'),outputs('Meeting_length')))))",
+                                  "type": "If"
+                                }
+                              },
+                              "runAfter": {
+                                "Destination_conflicts": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "else": {
+                                "actions": {}
+                              },
+                              "expression": "@and(and(not(empty(body('Read_rules_before_move')?['value'])),empty(body('Read_rules_before_move')?['@odata.nextLink']),equals(length(body('Match_rules_before_move')),length(body('Read_rules_before_move')?['value']))),empty(body('Destination_conflicts')),not(equals(body('Read_destination')?['value'],null)),empty(body('Read_destination')?['@odata.nextLink']),not(empty(body('Read_latest_meeting')?['@odata.etag'])),equals(body('Read_latest_meeting')?['@odata.etag'],body('Read_meeting_to_move')?['@odata.etag']),not(contains(toLower(coalesce(body('Read_latest_meeting')?['subject'],'')),'board meeting')),equals(body('Read_latest_meeting')?['isCancelled'],false),equals(body('Read_latest_meeting')?['isAllDay'],false),equals(body('Read_latest_meeting')?['type'],'singleInstance'),greaterOrEquals(ticks(variables('Slot')),ticks(utcNow())))",
+                              "type": "If"
+                            }
+                          },
+                          "runAfter": {
+                            "For_each_day": [
+                              "Succeeded"
+                            ]
+                          },
+                          "else": {
+                            "actions": {}
+                          },
+                          "expression": "@and(not(empty(variables('Slot'))),not(equals(body('Read_busy_times')?['value'],null)),empty(body('Read_busy_times')?['@odata.nextLink']))",
+                          "type": "If"
+                        }
+                      },
+                      "runAfter": {
+                        "Read_meeting_to_move": [
+                          "Succeeded"
+                        ]
+                      },
+                      "else": {
+                        "actions": {}
+                      },
+                      "expression": "@and(not(contains(toLower(coalesce(body('Read_meeting_to_move')?['subject'],'')),'board meeting')),equals(body('Read_meeting_to_move')?['isCancelled'],false),equals(body('Read_meeting_to_move')?['isAllDay'],false),equals(body('Read_meeting_to_move')?['type'],'singleInstance'),greater(ticks(body('Read_meeting_to_move')?['end']?['dateTime']),ticks(body('Read_meeting_to_move')?['start']?['dateTime'])),not(empty(body('Read_meeting_to_move')?['@odata.etag'])))",
+                      "type": "If"
+                    }
+                  },
+                  "runAfter": {},
+                  "type": "Foreach",
+                  "runtimeConfiguration": {
+                    "concurrency": {
+                      "repetitions": 1
+                    }
+                  }
+                },
+                "Read_final_event": {
+                  "runAfter": {
+                    "For_each_meeting": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "Uri": "https://graph.microsoft.com/v1.0/me/events/@{encodeUriComponent(triggerBody()?['text'])}?$select=id,subject,start,end,isCancelled,showAs,type,originalStartTimeZone,isAllDay",
+                      "Method": "GET",
+                      "ContentType": "application/json",
+                      "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_office365"
+                    }
+                  }
+                },
+                "Read_remaining_conflicts": {
+                  "runAfter": {
+                    "Read_final_event": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "parameters": {
+                      "Uri": "https://graph.microsoft.com/v1.0/me/calendar/calendarView?startDateTime=@{concat(formatDateTime(body('Read_final_event')?['start']?['dateTime'],'yyyy-MM-ddTHH:mm:ss.fffffff'),'Z')}&endDateTime=@{concat(formatDateTime(body('Read_final_event')?['end']?['dateTime'],'yyyy-MM-ddTHH:mm:ss.fffffff'),'Z')}&$select=id,subject,start,end,isCancelled,showAs,type&$top=1000",
+                      "Method": "GET",
+                      "ContentType": "application/json",
+                      "CustomHeader1": "Prefer: outlook.timezone=\"UTC\""
+                    },
+                    "host": {
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                      "operationId": "HttpRequest",
+                      "connectionName": "shared_office365"
+                    }
+                  }
+                },
+                "Remaining_conflicts": {
+                  "runAfter": {
+                    "Read_remaining_conflicts": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@body('Read_remaining_conflicts')?['value']",
+                    "where": "@and(not(equals(item()?['id'],body('Read_final_event')?['id'])),equals(item()?['isCancelled'],false),not(equals(item()?['showAs'],'free')),less(ticks(item()?['start']?['dateTime']),ticks(body('Read_final_event')?['end']?['dateTime'])),greater(ticks(item()?['end']?['dateTime']),ticks(body('Read_final_event')?['start']?['dateTime'])))"
+                  }
+                },
+                "Resolution_is_confirmed": {
+                  "actions": {
+                    "Mark_resolved": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "Status",
+                        "value": "Resolved"
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Remaining_conflicts": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {}
+                  },
+                  "expression": "@and(equals(variables('MovedCount'),length(variables('Targets'))),empty(body('Remaining_conflicts')),not(equals(body('Read_remaining_conflicts')?['value'],null)),empty(body('Read_remaining_conflicts')?['@odata.nextLink']))",
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "Conflict_exists": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {}
+              },
+              "expression": "@and(greater(length(variables('Targets')),0),lessOrEquals(length(variables('Targets')),10))",
+              "type": "If"
+            }
+          },
+          "runAfter": {
+            "Check_configuration": [
+              "Succeeded"
+            ]
+          },
+          "type": "Scope"
+        },
+        "Explain_result": {
+          "runAfter": {
+            "Check_and_resolve": [
+              "Succeeded",
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@if(equals(variables('Status'),'NoConflict'),'No conflict. No meeting was moved.',if(equals(variables('Status'),'Resolved'),concat('Conflict resolved. Confirmed moves: ',string(variables('MovedCount')),'. No email was needed.'),if(variables('ConflictFound'),concat('The conflict could not be fully resolved. Confirmed moves: ',string(variables('MovedCount')),'. Check the run details for protected meetings, unavailable time, changed rules, or a failed check.'),'The meeting could not be checked. No successful resolution was confirmed.')))"
+        },
+        "Needs_assistant_help": {
+          "actions": {
+            "Notify_assistant": {
+              "runAfter": {},
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "emailMessage/To": "@parameters('Executive assistant email (cr9b0_ExecutiveAssistantEmail)')",
+                  "emailMessage/Subject": "Meeting conflict needs your help",
+                  "emailMessage/Body": "<p>A calendar conflict could not be fully resolved automatically.</p><p>Meeting: @{replace(replace(replace(coalesce(body('Read_new_meeting')?['subject'],'Meeting'),'&','&amp;'),'<','&lt;'),'>','&gt;')}</p><p>Original time (UTC): @{body('Read_new_meeting')?['start']?['dateTime']} to @{body('Read_new_meeting')?['end']?['dateTime']}</p><p>@{outputs('Explain_result')}</p><p>Open the calendar and review the conflict. Board meetings must stay at their original times.</p>",
+                  "emailMessage/Importance": "Normal"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                  "operationId": "SendEmailV2",
+                  "connectionName": "shared_office365"
+                },
+                "retryPolicy": {
+                  "type": "none"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Explain_result": [
+              "Succeeded"
+            ]
+          },
+          "else": {
+            "actions": {}
+          },
+          "expression": "@and(variables('ConflictFound'),not(equals(variables('Status'),'Resolved')))",
+          "type": "If"
+        },
+        "Return_result": {
+          "runAfter": {
+            "Needs_assistant_help": [
+              "Succeeded",
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "49b9a94c-bf6d-4cf0-98d3-9ca13b5dfdbe"
+          },
+          "type": "Response",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "type": "string",
+                  "title": "result",
+                  "x-ms-dynamically-added": true
+                },
+                "status": {
+                  "type": "string",
+                  "title": "status",
+                  "x-ms-dynamically-added": true
+                },
+                "movedCount": {
+                  "type": "integer",
+                  "title": "movedCount",
+                  "x-ms-dynamically-added": true
+                },
+                "needsHelp": {
+                  "type": "boolean",
+                  "title": "needsHelp",
+                  "x-ms-dynamically-added": true
+                },
+                "notificationSent": {
+                  "type": "boolean",
+                  "title": "notificationSent",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "result": "@outputs('Explain_result')",
+              "status": "@variables('Status')",
+              "movedCount": "@variables('MovedCount')",
+              "needsHelp": "@and(variables('ConflictFound'),not(equals(variables('Status'),'Resolved')))",
+              "notificationSent": "@equals(actions('Notify_assistant')?['status'],'Succeeded')"
+            }
+          }
+        }
+      }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}
