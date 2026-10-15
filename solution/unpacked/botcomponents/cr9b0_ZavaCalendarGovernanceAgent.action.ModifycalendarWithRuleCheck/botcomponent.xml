@@ -1,7 +1,7 @@
 <botcomponent schemaname="cr9b0_ZavaCalendarGovernanceAgent.action.ModifycalendarWithRuleCheck">
   <componenttype>9</componenttype>
   <iscustomizable>0</iscustomizable>
-  <name>ModifycalendarWithRuleCheck</name>
+  <name>Check and move meeting</name>
   <parentbotid>
     <schemaname>cr9b0_ZavaCalendarGovernanceAgent</schemaname>
   </parentbotid>

@@ -1,12 +1,18 @@
-# Zava ExM Meeting Concierge maintenance scripts
+# Maintenance scripts
 
-Use an authenticated Microsoft Power Platform CLI installation. Export is read-only against the service but refreshes the local baseline. Review its resulting Git diff. Do not point it at another environment by accident.
+Use an authenticated official Power Platform CLI. Verify the target environment before exporting or importing.
 
 ```powershell
 ./scripts/export-solution.ps1 -EnvironmentUrl 'https://YOUR-DEV-ORG.crm.dynamics.com'
-./scripts/pack-solution.ps1
-python -m pip install PyYAML
+python scripts/record-provenance.py
+python -m pip install PyYAML tzdata
 python scripts/validate.py
+python scripts/test_resolver.py
+./scripts/pack-solution.ps1
 ```
 
-Validation is static and makes no calendar writes. Pack output goes to ignored build/. Import is intentionally not automated: bind connections, review fixed values and dependencies, and seed rules as described in the implementation notes. The export script does not refresh provenance automatically; regenerate hashes and review the provenance record whenever replacing the baseline.
+Export refreshes the current V2 archive and unpacked source. Review the diff and regenerated provenance. The V1 archive remains unchanged. Pack writes to ignored `build/`.
+
+`validate.py` checks file formats, local links, package integrity, current source hashes, original V1 archive hash, and common credential patterns. `test_resolver.py` executes the exported workflow action definitions against an in-memory calendar and policy service. It is a limited WDL interpreter, not Microsoft runtime validation. It never calls a live service. Keep live tests and their evidence separate.
+
+Import is not automated. Bind reviewed connections, confirm the rule row and fixed mailbox/recipient, publish the agent, and verify actual calendar behavior before enabling automatic processing in another environment.

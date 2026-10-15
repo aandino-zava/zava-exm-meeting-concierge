@@ -1,3 +1,5 @@
+> Historical V1 notes. For the current implementation, read the repository README and docs/v2-design.md.
+
 # Zava ExM Meeting Concierge agent
 
 The agent orchestrates one calendar-governance workflow. It is not a collection of independent agents. The instructions require runtime rules, authoritative event reads, strict conflict checks, duration preservation, and a search bounded to two business days.

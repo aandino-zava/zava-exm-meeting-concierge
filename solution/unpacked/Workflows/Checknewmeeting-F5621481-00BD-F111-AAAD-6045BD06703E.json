@@ -54,6 +54,11 @@
               "table": "AAMkADgwODg1YTI2LTg1YjItNGEwOC05YzMzLTdkZGUzOTIwYzA0NgBGAAAAAAAZrtvm3EeARJqTLcHSD4TRBwB_rgsxhUtDQ6vPGF22H5v_AAAAAAEGAAB_rgsxhUtDQ6vPGF22H5v_AAACoruSAAA="
             },
             "authentication": "@parameters('$authentication')"
+          },
+          "runtimeConfiguration": {
+            "concurrency": {
+              "runs": 1
+            }
           }
         }
       },
@@ -72,7 +77,7 @@
             },
             "parameters": {
               "Copilot": "cr9b0_ZavaCalendarGovernanceAgent",
-              "body/message": "Complete the autonomous calendar-governance workflow now for the newly created eventId: @{triggerOutputs()?['body/id']}. Retrieve current Dataverse rules and authoritative Graph event/calendar data. If there is no strict overlap, stop with no change and no email. If a real conflict exists, find an available slot within the next two business days during event-timezone working hours, preserve duration, and execute the allowed move only through ModifycalendarWithRuleCheck. If the newly created event is protected and conflicts, execute NotifyExecutiveAssistant with both events and the actual confirmed outcome, including failure or no-slot outcome. Do not stop at identifying a conflict or propose that another workflow should finish; use your configured tools to complete the entire action sequence in this invocation. Return the actual results, never unexecuted intentions."
+              "body/message": "Check the newly created meeting with eventId: @{triggerOutputs()?['body/id']}. Call Check and move meeting once with this new meeting ID and report the returned result. The flow handles scheduling, fixed rules, and unresolved-conflict email. Do not search for a time or send an email yourself."
             },
             "authentication": "@parameters('$authentication')"
           }

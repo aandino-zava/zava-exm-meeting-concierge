@@ -1,3 +1,5 @@
+> Historical V1 test record. Current V2 evidence is in [v2-testing.md](v2-testing.md).
+
 # Zava ExM Meeting Concierge testing
 
 These results derive from my testing on what I derived to be a completed build, a good enough MVP. Each Evidence entry explains what was checked and what that check supports.

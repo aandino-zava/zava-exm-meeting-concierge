@@ -48,8 +48,11 @@ for p in root.rglob('*'):
 prov=json.loads((root/'solution/provenance.json').read_text())
 for rel,expected in prov['native_files_sha256'].items():
     if hashlib.sha256((root/'solution/unpacked'/rel).read_bytes()).hexdigest()!=expected: errors.append('Native hash mismatch: '+rel)
-zip_path=next((root/'solution/exports').glob('*.zip'))
+zip_path=root/'solution'/prov['export_archive']
 if hashlib.sha256(zip_path.read_bytes()).hexdigest()!=prov['original_export_sha256']: errors.append('Original archive hash mismatch')
-assert prov['counts']=={'bots':1,'bot_components':22,'flows':2,'tables':1,'connection_references':5,'ai_skill_configs':1,'environment_variables':0}
+v1=json.loads((root/'solution/provenance-v1.json').read_text())
+if hashlib.sha256((root/'solution/exports/ZavaExMMeetingConcierge_1_0_0_0_unmanaged.zip').read_bytes()).hexdigest()!=v1['original_export_sha256']: errors.append('V1 archive changed')
+actual={p.relative_to(root/'solution/unpacked').as_posix() for p in (root/'solution/unpacked').rglob('*') if p.is_file()}
+if actual!=set(prov['native_files_sha256']): errors.append('Current provenance file inventory differs')
 print(json.dumps({'checks':counts,'errors':errors,'address_occurrence_files':address_files,'legacy_occurrence_files':legacy_files},indent=2))
 sys.exit(1 if errors else 0)

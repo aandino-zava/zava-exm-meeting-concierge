@@ -1,17 +1,13 @@
-# Zava ExM Meeting Concierge repository security
+# Security and governance
 
-The repository starts private and must not become public without explicit approval. The baseline preserves the actual exported solution rather than replacing working values inside native definitions.
+The fixed workflow is the only configured calendar write path. It reads event details itself and recognizes only the supported board-protection rule. Meeting text and model output cannot grant permission. Active rules are checked again before every move.
 
-## Retained environment configuration
+Calendar PATCH uses a fresh ETag with If-Match. Automatic write retries are disabled. A destination read reduces scheduling races; it cannot reserve the slot. A post-write read checks the actual outcome. Uncertain results are left for review.
 
-The unchanged export includes the fixed executive assistant address, a mailbox address in an earlier setup tool description, a lab calendar identifier, bot and workflow identifiers, connection-reference names, and platform metadata. The address values occur in the notification action and retained getSchedule tool. These are not authentication credentials, but require review before public release. The original ZIP includes the same values.
+Connections remain scoped to the existing lab account. This release does not change permissions or prove least-privilege role assignments. Protect connection ownership and restrict who can edit the agent, flows, and rules. Flow run history can contain calendar data; review retention and access before wider use.
 
-Reader-facing documentation uses generic recipient/calendar descriptions. No claim is made that the native export is anonymized. A future public release should use an explicitly reviewed, separately derived configuration baseline or a cleaned deployment/export, retaining provenance and dependency integrity.
+The automatic trigger is serialized. Direct parallel calls still lack a durable mailbox lock and request ledger. Caller identity binding, duplicate notification prevention across repeated requests, role verification, environment separation, and release approvals remain production work. Do not present this single-calendar Dev pilot as production-ready.
 
-## Excluded material
+See the [V2 design](v2-design.md) for supported behavior and limits.
 
-No token caches, authentication profiles, cookies, passwords, private certificates, .env files, local tools, temporary QA dependencies, raw run payloads, mailbox screenshots, implementation Word report, or unrelated workspace files are included. Ordinary XML element names such as Token and workflow $authentication placeholders are definitions, not stored credentials.
-
-## Review method
-
-The validation script scans all candidate text files and archive members for credential signatures, JWTs, private keys, bearer values, and signed-token parameters; checks for authentication-cache filenames; parses native JSON, XML, and bot YAML; and inventories address/name occurrences by file without printing their values. The native export was also reviewed for fixed configuration and connection definitions. This is a targeted static review, not a guarantee that every possible secret format is detected.
+The resolver originally required the callers own Outlook connection. Changing it to use the lab owner connection lets existing run-only callers reach that mailbox through this fixed flow. That change needs explicit approval and a review of existing flow sharing; it is not merely a sign-in refresh.

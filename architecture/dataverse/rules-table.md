@@ -1,3 +1,5 @@
+> Historical V1 notes. For the current implementation, read the repository README and docs/v2-design.md.
+
 # Zava ExM Meeting Concierge governance rules
 
 | Schema item | Exported value |

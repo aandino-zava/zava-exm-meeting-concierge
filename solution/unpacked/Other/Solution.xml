@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ImportExportXml version="9.2.26084.171" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26084.171" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26084.00171">
+<ImportExportXml version="9.2.26091.167" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.26091.167" OrganizationSchemaType="Standard" CRMServerServiceabilityVersion="9.2.26091.00167">
   <SolutionManifest>
     <UniqueName>ZavaCalendarGovernancePOC</UniqueName>
     <LocalizedNames>
       <LocalizedName description="Zava ExM Meeting Concierge" languagecode="1033" />
     </LocalizedNames>
     <Descriptions />
-    <Version>1.0.0.0</Version>
+    <Version>2.0.0.0</Version>
     <Managed>0</Managed>
     <Publisher>
       <UniqueName>Crec943</UniqueName>
@@ -82,13 +82,6 @@
       <RootComponent type="29" id="{80614549-fdbc-f111-aaad-6045bd067e6d}" behavior="0" />
       <RootComponent type="29" id="{f5621481-00bd-f111-aaad-6045bd06703e}" behavior="0" />
     </RootComponents>
-    <MissingDependencies>
-      <MissingDependency>
-        <Required type="401" displayName="AI Classify" solution="msdyn_AISolutionDefaultTemplates (202608.1.4.1)" id="{2bcd7b94-50bc-4767-af4a-367c63fb5487}">
-          <package appName="PowerAI" version="202608.1.4.1">msdyn_AISolutionAnchor (202608.1.4.1)</package>
-        </Required>
-        <Dependent type="29" displayName="ModifycalendarWithRuleCheck" id="{80614549-fdbc-f111-aaad-6045bd067e6d}" />
-      </MissingDependency>
-    </MissingDependencies>
+    <MissingDependencies />
   </SolutionManifest>
 </ImportExportXml>

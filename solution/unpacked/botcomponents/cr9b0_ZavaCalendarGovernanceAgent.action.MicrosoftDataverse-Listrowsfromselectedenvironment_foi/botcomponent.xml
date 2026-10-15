@@ -5,6 +5,6 @@
   <parentbotid>
     <schemaname>cr9b0_ZavaCalendarGovernanceAgent</schemaname>
   </parentbotid>
-  <statecode>0</statecode>
-  <statuscode>1</statuscode>
+  <statecode>1</statecode>
+  <statuscode>2</statuscode>
 </botcomponent>
