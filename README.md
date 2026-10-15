@@ -83,6 +83,8 @@ This separation is the reusable pattern: **AI coordinates and explains; a contro
 
 The checks do not reserve a destination slot or create a transaction across Outlook and Dataverse. An external booking can race with the last availability read, and overlapping requests can compete for a slot. Those limitations require additional controls before production use.
 
+<img width="3536" height="378" alt="meeting concierge logic" src="https://github.com/user-attachments/assets/4504e551-07b9-4560-b54f-7abf1a5bbd41" />
+
 ## Natural Language Governance with Dataverse
 
 The demonstrated rule is:
