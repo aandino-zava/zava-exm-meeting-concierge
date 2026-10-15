@@ -49,12 +49,8 @@ for rel,expected in prov['native_files_sha256'].items():
     if hashlib.sha256((root/'solution/unpacked'/rel).read_bytes()).hexdigest()!=expected: errors.append('Native hash mismatch: '+rel)
 zip_path=root/'solution'/prov['export_archive']
 if hashlib.sha256(zip_path.read_bytes()).hexdigest()!=prov['archive_sha256']: errors.append('Portable archive hash mismatch')
-dev=json.loads((root/'solution/provenance-v2-dev.json').read_text())
-if hashlib.sha256((root/'solution'/dev['export_archive']).read_bytes()).hexdigest()!=dev['original_export_sha256']: errors.append('V2 Dev archive changed')
 checksum=(zip_path.parent/'SHA256SUMS.txt').read_text().strip()
 if checksum!=prov['archive_sha256']+'  '+zip_path.name: errors.append('Download checksum differs')
-v1=json.loads((root/'solution/provenance-v1.json').read_text())
-if hashlib.sha256((root/'solution/exports/ZavaExMMeetingConcierge_1_0_0_0_unmanaged.zip').read_bytes()).hexdigest()!=v1['original_export_sha256']: errors.append('V1 archive changed')
 actual={p.relative_to(root/'solution/unpacked').as_posix() for p in (root/'solution/unpacked').rglob('*') if p.is_file()}
 if actual!=set(prov['native_files_sha256']): errors.append('Current provenance file inventory differs')
 tool_files=list((root/'solution/unpacked/botcomponents').glob('*.action.*/data'))

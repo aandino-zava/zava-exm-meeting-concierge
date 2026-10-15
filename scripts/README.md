@@ -34,7 +34,7 @@ python scripts/record-provenance.py --pac-version '<actual CLI version>'
 python scripts/validate.py
 ```
 
-Product and download names stay stable. Internal revision numbers and Git commit IDs remain technical traceability data. Do not overwrite the preserved live export evidence. Provenance records a repository build; it does not imply a live export or successful deployment.
+Product and download names stay stable. Internal revision numbers and Git commit IDs remain technical traceability data. Provenance records a repository build; it does not imply a live export or successful deployment.
 
 ## Review live changes
 

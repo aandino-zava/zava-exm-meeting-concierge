@@ -16,7 +16,7 @@ The resolver uses embedded Outlook and Dataverse connections. Authorized run-onl
 
 The solution ships no mailbox, calendar ID, assistant recipient, or connection credentials in current flow settings. Required environment variables and connection mappings select the target configuration. They are administered by the installer, not supplied by the agent. Both flows are packaged off; verify their state when updating an existing installation. Missing or malformed email configuration stops processing before calendar access.
 
-The installer must verify that the Outlook connection account, configured mailbox, and primary Calendar ID agree. This is not enforced by an identity comparison in the flow. Keep agent access and run-only sharing limited to intended POC users, configure authentication after import, and avoid anonymous/public exposure. Environment variable values are configuration rather than secret storage. The historical exports retain lab configuration as evidence; the portable package does not use those values.
+The installer must verify that the Outlook connection account, configured mailbox, and primary Calendar ID agree. This is not enforced by an identity comparison in the flow. Keep agent access and run-only sharing limited to intended POC users, configure authentication after import, and avoid anonymous/public exposure. Environment variable values are configuration rather than secret storage. The distributed package contains no lab mailbox, calendar ID, or notification recipient defaults.
 
 ## GitHub deployment identity
 

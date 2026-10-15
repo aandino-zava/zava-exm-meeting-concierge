@@ -156,7 +156,7 @@ Use the [GitHub Actions deployment guide](docs/deployment.md) to build, check, a
 
 For readers who prefer a downloaded ZIP or cannot use GitHub Actions, [manual installation](docs/manual-install.md) is an alternative using [ZavaExMMeetingConcierge.zip](solution/exports/ZavaExMMeetingConcierge.zip). Both routes use the same solution and Gatekeeper controls.
 
-The installed calendar must be the connected Outlook account's **primary calendar**. No lab mailbox, calendar ID, or recipient is embedded in the current flows. Package and local workflow checks do not establish a successful tenant deployment; see [test evidence](docs/testing.md). Review [security](docs/security.md) before deployment. The existing [license](LICENSE) is retained.
+The installed calendar must be the connected Outlook account's **primary calendar**. No lab mailbox, calendar ID, or recipient is embedded in the current flows. Package and local workflow checks do not establish a successful tenant deployment; see [test evidence](docs/testing.md). Review [security](docs/security.md) before deployment. This project is open source under the [MIT License](LICENSE); see [third-party notices](NOTICE) for platform and service terms.
 
 ## POC Scope and Limitations
 

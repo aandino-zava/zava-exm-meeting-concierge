@@ -9,6 +9,6 @@ Follow [GitHub Actions deployment](../docs/deployment.md) for the main path, or 
 
 Both flows are packaged off. The receiving tenant supplies its connections, Calendar mailbox, primary Calendar ID, Executive assistant email, and active rule data. Configure agent authentication/access and publish it before enabling processing. Credentials, calendar events, email, and flow run history are not included.
 
-The Gatekeeper remains the only agent calendar-write path. Native component identities and the internal platform revision are retained for upgrades; reader-facing product and package names remain stable. Earlier export archives and their provenance remain preserved as historical evidence, not alternate installation choices.
+The Gatekeeper remains the only agent calendar-write path. Native component identities and the internal platform revision are retained for upgrades; reader-facing product and package names remain stable. The current package and its fingerprints are the installation and source-verification baseline.
 
 Local packaging and tests do not establish a successful target deployment. Record the independent installation and calendar test in [the acceptance record](../deployment/acceptance.md).

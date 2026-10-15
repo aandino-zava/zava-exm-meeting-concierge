@@ -1,50 +1,65 @@
-# Test evidence
+# Testing and verification
 
-## Package and workflow checks
+## 1. What is checked automatically
 
-The solution package contains three connection references, three required environment variables without lab defaults, and inactive initial flow states. The official Power Platform CLI packed and unpacked it and generated deployment settings containing all three variables and connections.
+The [Meeting Concierge workflow](https://github.com/aandino-zava/zava-exm-meeting-concierge-copilot-agent/actions/workflows/meeting-concierge.yml) runs on pull requests and changes to main. Review the result for the source commit you intend to use.
 
-The [GitHub Actions build](https://github.com/aandino-zava/zava-exm-meeting-concierge/actions/runs/38782964607) passed and saved the solution ZIP and checksum. Checks include:
+| Check | What it establishes |
+| --- | --- |
+| Scheduling simulations | The workflow action definitions follow the fixed protection, scheduling, failure-handling, and notification rules against simulated services |
+| Package checks | Required connections and settings are included, no lab defaults are embedded, both flows are packaged off, and the distributable matches the current definitions |
+| Import-script safeguards | Invalid settings, invalid target URLs, and checksum mismatches stop before tenant access; deployment uses an explicit target and checked package |
+| Post-import verification tests | The verification script accepts complete components and rejects enabled flows, missing configuration/connections, incorrect tool bindings, and mismatched internal revisions |
+| Source validation | File formats, local documentation links, current package/source fingerprints, credential patterns, and the single agent tool pass validation |
 
-- **27 scheduling simulations** against the workflow action definitions, using simulated calendar and policy services.
-- **Six package checks** covering dependencies, configuration, inactive flows, package contents, and required README sections.
-- **Six post-import verification tests** covering complete components and rejection of enabled flows, missing connections/configuration, incorrect tool bindings, and mismatched internal revisions.
-- PowerShell import safeguards for missing settings, invalid targets, checksum mismatch, explicit target selection, and validation without tenant access.
-- Source format, local link, archive integrity, fingerprint, credential-pattern, and single-agent-tool checks. Workflow linting also passed locally.
+The build saves the solution ZIP and checksum as a downloadable artifact. An explicitly requested deployment uses that same artifact. After import, the deployment job checks the exported target components and inactive flow states.
 
-These checks do not authenticate runtime connectors or prove calendar behavior in a receiving tenant. The scheduling interpreter is a limited workflow-expression simulator, not the Microsoft runtime.
+Simulations use an in-memory calendar and policy service. Package and structural checks do not establish that connector permissions, agent publication, or calendar operations work in a tenant.
 
-## Recorded Dev configuration
+## 2. What has been verified in a live environment
 
-The authenticated **Zava PP Lab Dev** export dated October 15, 2026 contains one agent tool, **Check and move meeting**, two flows, and one governance table. Outlook and Dataverse use embedded flow connections. The starter has no concurrency control configured.
+The following behaviors were observed in **Zava PP Lab Dev**:
 
-The live results below predate the portable configuration changes and the removal of the starter's sequential-run setting. They establish behavior for the tested Dev configuration, not a cross-tenant deployment or concurrency guarantee. The source packages and fingerprints preserve that distinction.
+| Scenario | Observed behavior |
+| --- | --- |
+| No calendar conflict | NoConflict; no calendar change or notification |
+| Ordinary meeting conflicts with a protected board meeting | Ordinary meeting moved with its duration preserved; the board meeting stayed unchanged; Resolved; no notification |
+| Two protected board meetings conflict | Both stayed unchanged; NeedsHelp; one assistant notification submitted |
+| Working-hours lookup | Outlook working hours and Eastern time zone were read and used when selecting replacement times |
 
-## Recorded live tests
+These observations predate the portable tenant configuration and do not prove deployment into another tenant or safe handling of simultaneous requests. A successful email action and Sent Items entry establish submission to Outlook, not recipient delivery.
 
-Tests ran in Dev on October 15, 2026. Calendar times are Eastern.
+## 3. What remains unverified
 
-| Scenario | Observed result | Evidence |
-| --- | --- | --- |
-| Agent call without conflict | NoConflict; no move, no email, no sign-in prompt | Copilot Studio test session |
-| Automatic ordinary meeting versus board meeting | Planning moved from 10:00-10:30 to 11:00-11:30 on October 20. Board meeting stayed 10:00-11:00. Resolved; one move, no email. | Starter run `08584095458440334550013174027CU28` and independent Outlook read |
-| Automatic two protected meetings | Both stayed unchanged. NeedsHelp; zero moves, notificationSent true. One new help email appeared in sent mail. | Starter run `08584095457683799364846773689CU01` and independent calendar/email reads |
-| Direct calendar flow | Permitted moves and protected conflicts behaved as expected; working hours and Eastern time zone were checked | [Detailed Dev evidence](history/v2-build-record.md) |
+- Federated GitHub deployment and complete calendar acceptance in a receiving tenant.
+- Target-specific connection permissions, rule visibility, agent authentication/publication, and service licensing until checked during installation.
+- Live calendar behavior after the portable configuration changes.
+- Competing automatic/direct requests, duplicate requests, and an external booking arriving after the final destination read. A durable mailbox lock and request ledger are not implemented.
 
-All seven temporary events were removed. No attendees were invited. A successful notification action and sent-mail entry establish submission to Outlook, not recipient delivery.
+The supported scope is one connected account's primary calendar and the approved board-protection rule. Recurring and all-day meetings require manual review. Multi-executive operation and production readiness are outside the demonstrated scope.
 
-The [archived test records](history/README.md) retain failed attempts, partial verification, and untested scenarios. Those results are not counted as passes.
+Record completed target-environment checks in [the installation acceptance record](../deployment/acceptance.md). Update this summary when new verification changes what can be claimed; do not mark expected behavior as an observed result.
 
-## Target deployment acceptance
+## 4. How to repeat the checks
 
-**Federated deployment and live acceptance in a receiving tenant have not been verified.** Complete [the acceptance record](../deployment/acceptance.md) after following the [deployment instructions and calendar scenarios](deployment.md#test-the-installed-solution).
+### Local package and scheduling checks
 
-The pipeline's deployment job imports the checked artifact and re-exports it to temporary runner storage. Its structural checks verify solution identity/revision, required components, one Gatekeeper tool, connection declarations, configuration definitions, and inactive flow states. They do not establish connection permissions, rule visibility, agent authentication/publication, or live calendar outcomes.
+Use Python, PowerShell, and the official Power Platform CLI as described in [the script instructions](../scripts/README.md). These checks do not require tenant credentials:
 
-Verify actual calendar times, resolver responses, and notification action results. A successful parent flow or package build alone is insufficient evidence of a resolved meeting conflict.
+```powershell
+python -m pip install -r scripts/requirements.txt
+python scripts/validate.py
+python scripts/test_resolver.py
+./scripts/pack-solution.ps1
+python scripts/test_deployment.py
+python scripts/test_verify_import.py
+./scripts/test-import.ps1
+```
 
-## Run the local checks
+All checks must pass. To check a newly built ZIP rather than the committed download, set `CONCIERGE_PACKAGE_PATH` to its path before running `test_deployment.py`.
 
-From the repository root, follow [the script instructions](../scripts/README.md). Run `scripts/test_resolver.py`, `scripts/test_deployment.py`, and `scripts/test_verify_import.py`; PowerShell import safeguards are in `scripts/test-import.ps1`.
+### Deployment and live calendar acceptance
 
-The scheduling cases cover ordinary and protected conflicts, no conflict, adjacent meetings, missing/unsupported rules, incomplete pages, changed events, a newly booked destination, write failures, no available slot, multiple conflicts, recurring/all-day events, missing events, fixed authorization, subject injection, weekends, daylight saving, and configured email values.
+Follow [the deployment guide](deployment.md), then run its [calendar acceptance scenarios](deployment.md#test-the-installed-solution) using temporary events without attendees. Check actual Outlook times, the resolver's returned result, and notification actions. Do not rely solely on a green parent flow or successful package build.
+
+Complete [the acceptance record](../deployment/acceptance.md) with the package checksum, source commit, target environment, results, and relevant evidence. Stop processing and remove temporary events after testing. The same acceptance steps apply to GitHub Actions deployment and manual import.
