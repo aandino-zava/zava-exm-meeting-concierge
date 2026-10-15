@@ -2,7 +2,7 @@
 
 A Dev implementation that protects board meetings and resolves calendar conflicts using fixed rules. One Copilot Studio agent explains the outcome. Two Power Automate flows handle the automatic trigger and the checked calendar changes.
 
-**Current status:** V2 is installed in Dev. Direct flow tests passed; automatic processing is paused pending approval of the lab owner connection and final end-to-end testing. See the [test record](docs/v2-testing.md).
+**Current status:** V2 is installed in Dev. The approved lab owner connection is saved, the agent is published, and both flows are enabled. Direct and automatic acceptance tests passed. See the [test record](docs/v2-testing.md).
 
 ## What changed in V2
 

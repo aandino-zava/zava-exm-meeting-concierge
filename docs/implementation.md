@@ -3,7 +3,7 @@
 This release updates the existing unmanaged solution in Zava PP Lab Dev. Keep its unique name, component IDs, and schema names. Use the V2 archive, not the historical V1 archive.
 
 1. Confirm the intended environment and export a backup. This prevents changing the wrong environment and provides a rollback source.
-2. Import the unmanaged package, bind the existing Outlook, Copilot Studio, and Dataverse connections, and publish. Credentials and active rule rows are not in a solution ZIP.
+2. Import the unmanaged package, bind the existing Outlook, Copilot Studio, and Dataverse connections, and publish. For this approved single-calendar pilot, the resolver uses the existing lab owner Outlook connection rather than asking each caller to sign in. Review run-only sharing before enabling that choice in another environment. Credentials and active rule rows are not in a solution ZIP.
 3. Confirm the active rule in the existing Calendar Governance Rule table: `Board meetings are critical and cannot be moved. Any meeting that has "board meeting" in the subject is considered a board meeting.` Unsupported additional active rules block resolution.
 4. Review fixed mailbox, calendar trigger ID, and Nancy's email in the native flow definitions. They are scoped to this lab. A different mailbox needs a reviewed deployment change.
 5. Check Outlook working hours. The resolver reads getSchedule for the configured mailbox and uses returned hours/time zone, on weekdays only. Missing/invalid settings stop the move.

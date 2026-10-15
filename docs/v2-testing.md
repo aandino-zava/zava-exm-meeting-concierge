@@ -18,7 +18,15 @@ The first resolver move predates the working-hours update. The updated flow was 
 | Updated working-hours path | The new ordinary test meeting moved from 10:00-10:30 to 11:30-12:00, after the other bookings. Its Eastern time zone and 30-minute length were preserved. | Resolver run `08584095684424503411317845998CU01`; independent Outlook read |
 | Agent tool format | Copilot Studio recognizes the flow and its eventId input after canonical YAML formatting. The agent selected it, then requested the caller's Outlook connection. | Copilot Studio test trace |
 
-Automatic end-to-end acceptance remains pending. The creation trigger is paused while approval to use the lab owner's existing Outlook connection is pending. The connection change was prepared but not saved. No successful autonomous execution is claimed for this version.
+## Automatic acceptance after connection approval
+
+The user approved the existing lab owner Outlook connection on October 15, 2026. The saved flow and native export show Outlook and Dataverse runtime sources as embedded. The agent was published and both flows enabled.
+
+- A fresh agent test returned NoConflict without a sign-in prompt, with no move and no email.
+- Automatic trigger run `08584095458440334550013174027CU28` completed successfully. Its agent response was Resolved with one confirmed move and no email. An independent Outlook read confirmed that Planning moved from 10:00-10:30 to 11:00-11:30 on October 20, while BOARD MEETING stayed at 10:00-11:00.
+- Automatic trigger run `08584095457683799364846773689CU01` returned NeedsHelp, zero confirmed moves, and notificationSent true. Independent Outlook reads confirmed both protected meetings remained at their original times and one new help email appeared in sent mail for this test.
+
+The calendar trigger polls once per minute. The automatic run appeared after polling; a temporarily empty run list was not treated as success or failure.
 
 ## Local simulation
 
@@ -31,3 +39,5 @@ The 22 cases cover a normal move, new protected meeting, two protected meetings,
 A successful notification action establishes submission to Outlook, not recipient delivery. Automatic requests run sequentially, but duplicate requests and parallel direct calls have no durable request ledger. A final slot read cannot reserve a destination against an external calendar user. No multi-executive, production role, or isolated UAT claim is made.
 
 All four temporary calendar events were removed after the direct tests. No attendees were invited. The help email remains as test evidence. The final direct move returned status Resolved, movedCount 1, needsHelp false, and notificationSent false.
+
+The three automatic-test events were also removed, and an independent calendar read confirmed the test date was empty. Both flows remain Activated and the agent is published. All seven temporary events from the direct and automatic tests have been removed.

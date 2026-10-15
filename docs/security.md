@@ -10,4 +10,4 @@ The automatic trigger is serialized. Direct parallel calls still lack a durable 
 
 See the [V2 design](v2-design.md) for supported behavior and limits.
 
-The resolver originally required the callers own Outlook connection. Changing it to use the lab owner connection lets existing run-only callers reach that mailbox through this fixed flow. That change needs explicit approval and a review of existing flow sharing; it is not merely a sign-in refresh.
+The user approved the existing lab owner Outlook connection for automatic requests on October 15, 2026. The saved resolver now uses that embedded connection, as does Dataverse. Existing run-only callers can reach the lab mailbox only through the configured flow path; flow sharing was not expanded. Review these callers before a wider rollout. This is a single-calendar service identity choice, not verified production identity isolation.
