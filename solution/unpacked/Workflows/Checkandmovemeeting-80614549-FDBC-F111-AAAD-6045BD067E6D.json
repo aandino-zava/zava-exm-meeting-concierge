@@ -32,6 +32,20 @@
         "$connections": {
           "defaultValue": {},
           "type": "Object"
+        },
+        "Calendar mailbox (cr9b0_CalendarMailbox)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_CalendarMailbox"
+          }
+        },
+        "Executive assistant email (cr9b0_ExecutiveAssistantEmail)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_ExecutiveAssistantEmail"
+          }
         }
       },
       "triggers": {
@@ -97,6 +111,37 @@
                 "value": 0
               }
             ]
+          }
+        },
+        "Check_configuration": {
+          "runAfter": {
+            "Start_request": [
+              "Succeeded"
+            ]
+          },
+          "type": "ParseJson",
+          "inputs": {
+            "content": {
+              "mailbox": "@parameters('Calendar mailbox (cr9b0_CalendarMailbox)')",
+              "assistant": "@parameters('Executive assistant email (cr9b0_ExecutiveAssistantEmail)')"
+            },
+            "schema": {
+              "type": "object",
+              "required": [
+                "mailbox",
+                "assistant"
+              ],
+              "properties": {
+                "mailbox": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+                },
+                "assistant": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+                }
+              }
+            }
           }
         },
         "Check_and_resolve": {
@@ -332,7 +377,7 @@
                               "Method": "POST",
                               "ContentType": "application/json",
                               "CustomHeader1": "Prefer: outlook.timezone=\"UTC\"",
-                              "Body": "{\"schedules\": [\"aandino@diax50808308.onmicrosoft.com\"], \"startTime\": {\"dateTime\": \"@{body('Read_meeting_to_move')?['start']?['dateTime']}\", \"timeZone\": \"UTC\"}, \"endTime\": {\"dateTime\": \"@{body('Read_meeting_to_move')?['end']?['dateTime']}\", \"timeZone\": \"UTC\"}, \"availabilityViewInterval\": 30}"
+                              "Body": "{\"schedules\": [\"@{parameters('Calendar mailbox (cr9b0_CalendarMailbox)')}\"], \"startTime\": {\"dateTime\": \"@{body('Read_meeting_to_move')?['start']?['dateTime']}\", \"timeZone\": \"UTC\"}, \"endTime\": {\"dateTime\": \"@{body('Read_meeting_to_move')?['end']?['dateTime']}\", \"timeZone\": \"UTC\"}, \"availabilityViewInterval\": 30}"
                             },
                             "host": {
                               "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
@@ -866,7 +911,7 @@
             }
           },
           "runAfter": {
-            "Start_request": [
+            "Check_configuration": [
               "Succeeded"
             ]
           },
@@ -891,7 +936,7 @@
               "type": "OpenApiConnection",
               "inputs": {
                 "parameters": {
-                  "emailMessage/To": "NancyW@DIAx50808308.OnMicrosoft.com",
+                  "emailMessage/To": "@parameters('Executive assistant email (cr9b0_ExecutiveAssistantEmail)')",
                   "emailMessage/Subject": "Meeting conflict needs your help",
                   "emailMessage/Body": "<p>A calendar conflict could not be fully resolved automatically.</p><p>Meeting: @{replace(replace(replace(coalesce(body('Read_new_meeting')?['subject'],'Meeting'),'&','&amp;'),'<','&lt;'),'>','&gt;')}</p><p>Original time (UTC): @{body('Read_new_meeting')?['start']?['dateTime']} to @{body('Read_new_meeting')?['end']?['dateTime']}</p><p>@{outputs('Explain_result')}</p><p>Open the calendar and review the conflict. Board meetings must stay at their original times.</p>",
                   "emailMessage/Importance": "Normal"

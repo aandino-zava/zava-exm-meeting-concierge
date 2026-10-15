@@ -1,10 +1,10 @@
 # Demo guide
 
-Open the lab Outlook calendar, Copilot Studio Activity, and the two Power Automate flows. Use temporary meetings without attendees on a clear future weekday. The trigger polls once per minute; allow processing time.
+Open the configured test Outlook calendar, Copilot Studio Activity, and the two Power Automate flows. Use temporary meetings without attendees on a clear future weekday. The trigger polls once per minute; allow processing time.
 
 ## Explain the design
 
-> I kept one agent and one scheduling tool. The flow checks the rules, finds a time, makes the change, and verifies the result. The agent explains it. Nancy is contacted only when a confirmed conflict still needs help.
+> I kept one agent and one scheduling tool. The flow checks the rules, finds a time, makes the change, and verifies the result. The agent explains it. The executive assistant is contacted only when a confirmed conflict still needs help.
 
 Show **Check and move meeting**, then open that flow's Outlook and Dataverse actions. Those connections work inside the flow; the agent no longer needs separate tools for the same work.
 
@@ -20,7 +20,7 @@ Explain that the flow chooses and verifies the time; the model does not authoriz
 
 ## 3. Human help
 
-Create `Demo - Second board meeting`, 10:15-10:45. Expect both protected meetings to stay put, NeedsHelp, zero moves, and the help email to the configured lab assistant address. Check notificationSent and sent mail before claiming submission.
+Create `Demo - Second board meeting`, 10:15-10:45. Expect both protected meetings to stay put, NeedsHelp, zero moves, and the help email to the configured assistant address. Check notificationSent and sent mail before claiming submission.
 
 Explain that the automation stops where its rules stop. Remove the temporary meetings afterward. A green parent run alone is insufficient evidence.
 
@@ -35,3 +35,7 @@ Explain that the automation stops where its rules stop. Remove the temporary mee
 **Is it production ready?** This is a single-calendar Dev pilot. It does not establish all attendees' availability or support every event type. The current starter permits overlapping runs. A durable lock, duplicate-request tracking, stronger caller restrictions, verified roles, and isolated UAT remain production work.
 
 See [How it works](architecture.md), [Security](security.md), and [Test evidence](testing.md).
+
+## Demo in another tenant
+
+Install using [the POC guide](deployment.md), supply the target primary calendar and assistant settings, and complete [the acceptance record](../deployment/acceptance.md). Use the actual configured assistant and working hours in your walkthrough. Retain the distinction between earlier Dev evidence and the new installation's results; a package check alone does not establish a successful import.

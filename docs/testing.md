@@ -1,8 +1,18 @@
-# Test evidence
+# Portable package checks and live evidence
 
-Keep exported source, observed live results, and owner-reported testing separate.
+## V2.1 portability checks
 
-## Latest owner-reviewed snapshot
+The repository-authored V2.1 package adds the missing Dataverse connection reference, three required environment variables without lab defaults, and inactive initial flow states. The official Power Platform CLI packed/unpacked it and generated a settings file containing all three variables and all three connections. All three variable definitions are present in the ZIP, survive unpacking, and are recognized by create-settings. This is not a successful target import claim.
+
+All **27 scheduling simulations** and **six deployment checks** pass locally. New cases exercise a different mailbox, the configured assistant recipient, and invalid/missing settings stopping before service access. These are simulated services and static package checks, not Microsoft runtime tests.
+
+**Independent manual import: not yet run.** The owner will test the installation guide in a separate environment and record results in [the acceptance record](../deployment/acceptance.md). V2.1 has not been deployed to live Dev as part of this repository change.
+
+## Earlier Dev evidence
+
+The following evidence describes earlier implementation snapshots and must not be used as proof of a V2.1 cross-tenant import.
+
+### Owner-reviewed V2.0 snapshot
 
 On October 15, 2026, the owner removed the seven retired tools and reported satisfactory manual testing. A fresh authenticated export from **Zava PP Lab Dev** confirms:
 
@@ -16,7 +26,7 @@ All 22 local workflow checks, source/link/fingerprint checks, and the official P
 
 No new run IDs were supplied for the owner's manual tests. No new live calendar tests were performed for this repository-only refresh.
 
-## Recorded live tests
+### Recorded live tests
 
 These tests ran in Dev on October 15, before the latest tool removal and starter-setting change. Times are Eastern.
 
@@ -29,9 +39,9 @@ These tests ran in Dev on October 15, before the latest tool removal and starter
 
 All seven temporary events were removed. No attendees were invited. A successful notification action and sent-mail entry establish submission to Outlook, not recipient delivery.
 
-## Local workflow checks
+## Running current local checks
 
-Run `python scripts/test_resolver.py` from the repository root. The 22 cases execute the actual exported calendar-flow definitions against in-memory services. They cover ordinary and protected conflicts, no conflict, adjacent meetings, missing/unsupported rules, incomplete pages, changed events, a newly booked destination, write failures, no available slot, multiple conflicts, recurring/all-day events, missing events, fixed authorization, nesting, subject injection, weekends, and daylight saving.
+Run `python scripts/test_resolver.py` and `python scripts/test_deployment.py` from the repository root. The 27 cases execute the current calendar-flow definitions against in-memory services. They cover ordinary and protected conflicts, no conflict, adjacent meetings, missing/unsupported rules, incomplete pages, changed events, a newly booked destination, write failures, no available slot, multiple conflicts, recurring/all-day events, missing events, fixed authorization, nesting, subject injection, weekends, and daylight saving.
 
 This limited workflow-expression interpreter does not authenticate connectors, execute the starter, test parallel requests, or replace live platform tests. Source checks also validate file formats, links, archive integrity, fingerprints, credential patterns, and the single agent tool.
 

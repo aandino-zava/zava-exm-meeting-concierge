@@ -19,6 +19,7 @@ def zone(v):return ZoneInfo({'Eastern Standard Time':'America/New_York','UTC':'U
 class Engine:
  def __init__(self,events,new='new',rules=None):
     self.events=copy.deepcopy(events);self.new=new;self.rules=rules or [RULE];self.vars={};self.records={};self.loops={};self.current=None;self.writes=[];self.mail=[];self.calls=[];self.fail_patch=False;self.partial=False;self.stale=False;self.race=False;self.reply=None
+    self.parameters={'Calendar mailbox (cr9b0_CalendarMailbox)':'executive@example.com','Executive assistant email (cr9b0_ExecutiveAssistantEmail)':'assistant@example.com'}
  def expr(self,s):
     pos=0
     def parse():
@@ -54,6 +55,7 @@ class Engine:
     if n=='convertFromUtc' and len(a)==3:return dt(a[0]).astimezone(zone(a[1])).strftime('%Y-%m-%dT%H:%M:%S')
     if n=='replace':return a[0].replace(a[1],a[2])
     if n=='variables':return self.vars[a[0]]
+    if n=='parameters':return self.parameters[a[0]]
     if n=='outputs':return self.records.get(a[0],{}).get('output')
     if n=='body':return self.records.get(a[0],{}).get('output')
     if n=='triggerBody':return {'text':self.new}
@@ -84,6 +86,12 @@ class Engine:
     elif t=='SetVariable':self.vars[a['inputs']['name']]=self.value(a['inputs']['value'])
     elif t=='IncrementVariable':self.vars[a['inputs']['name']]+=a['inputs']['value']
     elif t=='Compose':return self.value(a['inputs'])
+    elif t=='ParseJson':
+     content=self.value(a['inputs']['content']);schema=a['inputs']['schema']
+     for key in schema['required']:
+      value=content.get(key);rule=schema['properties'][key]
+      if not isinstance(value,str) or not re.fullmatch(rule['pattern'],value):raise ValueError('Invalid configuration: '+key)
+     return content
     elif t in ['Query','Select']:
      vals=self.value(a['inputs']['from']);old=self.current;out=[]
      for v in vals:
@@ -111,7 +119,9 @@ class Engine:
     if op=='ListRecords':return {'value':[{'cr9b0_ruletext':v} for v in self.rules]}
     if op=='SendEmailV2':self.mail.append(p);return {}
     uri=p['Uri']
-    if '/getSchedule' in uri:return {'value':[{'workingHours':{'daysOfWeek':['monday','tuesday','wednesday','thursday','friday'],'startTime':'08:00:00.0000000','endTime':'17:00:00.0000000','timeZone':{'name':'Eastern Standard Time'}}}]}
+    if '/getSchedule' in uri:
+     assert json.loads(p['Body'])['schedules']==[self.parameters['Calendar mailbox (cr9b0_CalendarMailbox)']]
+     return {'value':[{'workingHours':{'daysOfWeek':['monday','tuesday','wednesday','thursday','friday'],'startTime':'08:00:00.0000000','endTime':'17:00:00.0000000','timeZone':{'name':'Eastern Standard Time'}}}]}
     if '/calendarView?' in uri:
      if name=='Read_destination' and self.race:self.events.append(event('race','Other booking','2026-10-19T15:00:00Z','2026-10-19T16:00:00Z'))
      start=dt(re.search(r'startDateTime=([^&]+)',uri)[1]);end=dt(re.search(r'endDateTime=([^&]+)',uri)[1]);res={'value':[copy.deepcopy(e) for e in self.events if dt(e['start']['dateTime'])<end and dt(e['end']['dateTime'])>start]}
@@ -138,6 +148,20 @@ class WorkflowTests(unittest.TestCase):
   self.assertEqual(r['status'],status,{n:v for n,v in e.records.items() if v['status']=='Failed'})
   self.assertEqual(e.writes,writes);self.assertEqual(len(e.mail),mail);return r
  def test_normal_move(self):self.check(Engine(basic()),'Resolved',['new'],0)
+ def test_other_tenant_mailbox(self):
+  e=Engine(basic());e.parameters['Calendar mailbox (cr9b0_CalendarMailbox)']='leader@another.example';self.check(e,'Resolved',['new'],0)
+ def test_configured_assistant(self):
+  e=Engine(basic(),rules=['Unsupported']);e.parameters['Executive assistant email (cr9b0_ExecutiveAssistantEmail)']='ea@another.example'
+  self.check(e,'NeedsHelp',[],1);self.assertEqual(e.mail[0]['emailMessage/To'],'ea@another.example')
+ def test_missing_mailbox_stops_before_services(self):
+  e=Engine(basic());e.parameters['Calendar mailbox (cr9b0_CalendarMailbox)']=''
+  self.check(e,'UnableToCheck',[],0);self.assertEqual(e.calls,[])
+ def test_missing_assistant_stops_before_services(self):
+  e=Engine(basic());e.parameters['Executive assistant email (cr9b0_ExecutiveAssistantEmail)']=''
+  self.check(e,'UnableToCheck',[],0);self.assertEqual(e.calls,[])
+ def test_multiple_recipients_rejected(self):
+  e=Engine(basic());e.parameters['Executive assistant email (cr9b0_ExecutiveAssistantEmail)']='ea@example.com;other@example.com'
+  self.check(e,'UnableToCheck',[],0);self.assertEqual(e.calls,[])
  def test_new_board_moves_other(self):self.check(Engine(basic(True)),'Resolved',['other'],0)
  def test_two_boards(self):
   ev=basic();ev[0]['subject']='board meeting';self.check(Engine(ev),'NeedsHelp',[],1)

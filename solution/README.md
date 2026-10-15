@@ -1,12 +1,18 @@
 # Solution files
 
-- `unpacked/` is the current V2 native source exported from the live Dev solution.
-- `exports/ZavaExMMeetingConcierge_2_0_0_0_unmanaged.zip` is the current unmanaged import package.
-- `provenance.json` records its version, origin, archive hash, and every native file hash.
-- The `1_0_0_0` ZIP and `provenance-v1.json` preserve the original V1 evidence.
+## Portable POC package
 
-Platform schema names and component IDs are retained. Flow display names are **Check new meeting** and **Check and move meeting**.
+- [V2.1 unmanaged ZIP](exports/ZavaExMMeetingConcierge_2_1_0_0_unmanaged.zip): repository-authored portable build for a new POC installation.
+- [SHA-256 checksum](exports/SHA256SUMS.txt): verifies the download.
+- `unpacked/`: current portable source, with the Dataverse connection dependency and three required environment variables.
+- `provenance.json`: portable build origin, package hash, and native file fingerprints. This is not a fresh export from live Dev.
 
-A solution export does not contain account credentials, active Dataverse rule rows, calendar events, email, or flow run history. Review connection bindings, the fixed lab mailbox/calendar, and the assistant address before importing elsewhere. Publish the agent and verify both flows are active.
+Follow [the installation guide](../docs/deployment.md). Both flows are packaged off. Supply target connections, Calendar mailbox, primary Calendar ID, and Executive assistant email, create or reuse the active rule, then configure and publish the agent before enabling processing.
 
-Read the [setup instructions](../docs/deployment.md) and [actual V2 test evidence](../docs/testing.md). This is a Dev pilot; no UAT or production deployment is claimed. The latest export contains only one agent tool; the seven retired tools have been removed. The calendar flow contains no AI Builder authorization action. The starter has no concurrency control configured.
+The package has been locally packed, unpacked, and checked. A clean second-environment import is awaiting the owner's manual test. Credentials, active rule rows, calendar events, email, and flow run history are not included.
+
+## Preserved evidence
+
+The V1 ZIP and `provenance-v1.json` preserve original evidence. The V2.0 ZIP and `provenance-v2-dev.json` preserve the owner-reviewed live Dev export before portability changes. Use V2.1 for a new installation; do not edit the earlier archives.
+
+Platform schema names and component IDs remain stable. One agent tool, **Check and move meeting**, owns the configured calendar change path. No AI classification authorizes writes. The starter has no concurrency control configured; this is a primary-calendar Dev POC rather than a production deployment.

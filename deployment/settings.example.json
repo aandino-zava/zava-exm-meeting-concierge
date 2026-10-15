@@ -1,0 +1,33 @@
+{
+  "EnvironmentVariables": [
+    {
+      "SchemaName": "cr9b0_CalendarMailbox",
+      "Value": ""
+    },
+    {
+      "SchemaName": "cr9b0_CalendarId",
+      "Value": ""
+    },
+    {
+      "SchemaName": "cr9b0_ExecutiveAssistantEmail",
+      "Value": ""
+    }
+  ],
+  "ConnectionReferences": [
+    {
+      "LogicalName": "cr9b0_sharedmicrosoftcopilotstudio_52e72",
+      "ConnectionId": "",
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_microsoftcopilotstudio"
+    },
+    {
+      "LogicalName": "cr9b0_sharedoffice365_2e7d8",
+      "ConnectionId": "",
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_office365"
+    },
+    {
+      "LogicalName": "cr9b0_ZavaCalendarGovernanceAgent.shared_commondataserviceforapps.a6d033d6de074535bd21c4e0f95310a0",
+      "ConnectionId": "",
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+    }
+  ]
+}

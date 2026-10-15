@@ -6,12 +6,12 @@ V2 keeps one agent and two flows. The agent hands the new meeting ID to **Check 
 
 - Subjects containing **board meeting**, regardless of capitalization, are protected.
 - Keep the meeting length.
-- Look for the next free time after the original meeting ends, through the end of the second following business day. Read working hours and time zone from Outlook getSchedule for the configured mailbox; search weekdays that are also present in the returned working days. The verified lab setting is Monday-Friday, 8 AM-5 PM Eastern. Holidays are not modeled.
+- Look for the next free time after the original meeting ends, through the end of the second following business day. Read working hours and time zone from Outlook getSchedule for the configured mailbox; search weekdays that are also present in the returned working days. Earlier Dev tests used Monday-Friday, 8 AM-5 PM Eastern; each installation reads its own connected account settings. Holidays are not modeled.
 - Keep a final authoritative calendar read before writing.
 - Email the configured assistant only when a confirmed conflict remains unresolved.
 - Keep one agent. Do not let AI authorize calendar changes or select replacement times.
 
-These choices were confirmed by the user during implementation. The scope is the existing Dev mailbox and existing solution, not a multi-executive production rollout.
+These choices were confirmed by the user during implementation. The portable POC configures one connected account and its primary calendar per installation; multi-executive production use remains outside scope.
 
 ## The two flows
 
@@ -66,3 +66,9 @@ V1 let the agent select a proposed time and used model classification inside the
 The agent remains to demonstrate Copilot Studio integration and explain results. This fixed process could also run without an agent; AI is not required to authorize a move.
 
 See [Setup and maintenance](deployment.md) for native source locations and [Demo guide](demo.md) for the interview walkthrough.
+
+## Portable POC configuration
+
+V2.1 declares all three required connection references, including Dataverse, and uses three required environment variables: Calendar mailbox, Calendar ID, and Executive assistant email. No lab values are supplied as defaults. Both flows are packaged off. A configuration check rejects missing or malformed mailbox/assistant email values before calendar access. The trigger uses the configured Calendar ID.
+
+Graph reads and writes still use `/me`, so the configured mailbox and trigger Calendar ID must belong to the Outlook connection account's primary calendar. Configuration does not add support for shared or secondary calendars. The installer verifies this identity match. The agent cannot supply or override these settings. See [installation steps](deployment.md).

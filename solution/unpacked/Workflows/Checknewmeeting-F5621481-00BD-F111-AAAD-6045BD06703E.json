@@ -31,6 +31,27 @@
         "$connections": {
           "defaultValue": {},
           "type": "Object"
+        },
+        "Calendar mailbox (cr9b0_CalendarMailbox)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_CalendarMailbox"
+          }
+        },
+        "Calendar ID (cr9b0_CalendarId)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_CalendarId"
+          }
+        },
+        "Executive assistant email (cr9b0_ExecutiveAssistantEmail)": {
+          "defaultValue": "",
+          "type": "String",
+          "metadata": {
+            "schemaName": "cr9b0_ExecutiveAssistantEmail"
+          }
         }
       },
       "triggers": {
@@ -46,7 +67,7 @@
           "type": "OpenApiConnection",
           "inputs": {
             "parameters": {
-              "table": "AAMkADgwODg1YTI2LTg1YjItNGEwOC05YzMzLTdkZGUzOTIwYzA0NgBGAAAAAAAZrtvm3EeARJqTLcHSD4TRBwB_rgsxhUtDQ6vPGF22H5v_AAAAAAEGAAB_rgsxhUtDQ6vPGF22H5v_AAACoruSAAA="
+              "table": "@parameters('Calendar ID (cr9b0_CalendarId)')"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",

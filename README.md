@@ -6,7 +6,7 @@ I built Zava ExM Meeting Concierge to explore a practical governance problem: ho
 
 This proof of concept uses **one Copilot Studio agent, two Power Automate flows, Microsoft Graph, and a governance rule table in Dataverse**. The agent invokes one tool, **Check and move meeting**, and explains its verified result. The flow selects eligible meetings, finds replacement times, and enforces the checks. **Every calendar write goes through this Gatekeeper; the agent cannot authorize a change through its own reasoning.**
 
-The repository contains the actual unmanaged solution exported from **Zava PP Lab Dev**, with architecture, deployment guidance, and test evidence. The current V2 export reflects the owner's removal of the unused agent tools. This is a demonstrated Dev implementation, with production gaps documented below.
+The repository contains the native solution source, a **portable V2.1 unmanaged POC package**, architecture, deployment guidance, and test evidence. The package builds on the owner-reviewed Dev solution and replaces lab-specific settings with target-environment configuration. Earlier live exports remain preserved. The portable package awaits an independent manual import test; production gaps are documented below.
 
 ## Design Rationale
 
@@ -113,10 +113,10 @@ Recurring events can appear in calendar reads, but moving them is outside the su
 | Agent flow tool | 1 | Exposes Check and move meeting |
 | Cloud flows | 2 | Detect a new meeting; check and resolve conflicts |
 | Governance table | 1 | Stores the supported business rule |
-| Connection references | 2 | Bind the exported Copilot Studio and Outlook connections |
+| Connection references | 3 | Bind target Copilot Studio, Outlook, and Dataverse connections |
 | Bot components, including the tool and system topics | 15 | Native agent configuration; includes the single tool above |
 | Generated AI Skill Config | 1 | Retained platform artifact; no AI classification authorizes writes |
-| Environment variable definitions | 0 | Mailbox and recipient settings require deployment review |
+| Environment variable definitions | 3 | Calendar mailbox, primary Calendar ID, and Executive assistant email |
 
 Dataverse actions remain within the calendar flow. Counts describe exported components, rather than every connection used by an action. See [setup and maintenance](docs/deployment.md) for native definitions and connection binding details.
 
@@ -124,7 +124,7 @@ Dataverse actions remain within the calendar flow. Counts describe exported comp
 
 Live V2 evidence covers no conflict, a resolved ordinary-meeting conflict with the board meeting preserved, and two protected meetings requiring help. The resolved case sent no notification; the unresolved protected conflict submitted an assistant email. Calendar times and notification results were checked beyond the parent flow's success status.
 
-The repository also includes **22 local workflow simulations** against the flow definitions. These exercise fixed checks with simulated services; they are separate from live platform tests. The latest export reflects the owner's subsequent tool cleanup and manual acceptance. Earlier live evidence predates that cleanup and the removal of the starter's concurrency setting.
+The repository also includes **27 local workflow simulations** against the flow definitions. These exercise fixed checks with simulated services; they are separate from live platform tests. Six additional deployment checks cover dependency declarations, required settings, initial flow state, and the README structure. Earlier live evidence predates the owner's tool cleanup, removal of the starter's concurrency setting, and portability changes. A separate-environment import awaits the owner's manual acceptance test.
 
 See [test evidence and its limits](docs/testing.md). For the interview walkthrough, use the [demo guide](docs/demo.md).
 
@@ -150,9 +150,11 @@ For instructions on setting up that environment structure, access controls, depl
 
 ## Deployment and Import Notes
 
-Follow [setup and maintenance](docs/deployment.md) to bind connections, review the configured mailbox and assistant recipient, seed the active rule, publish the agent, and enable both flows. The approved Dev configuration uses the existing lab owner's Outlook connection; review run-only callers before using that configuration elsewhere.
+Download [the portable V2.1 POC package](solution/exports/ZavaExMMeetingConcierge_2_1_0_0_unmanaged.zip) and follow [the installation guide](docs/deployment.md). It covers target connections, the three configuration values, the active governance rule, agent authentication and publication, and a manual acceptance checklist. Both flows are packaged off so the installer can verify setup before enabling processing.
 
-The native source has been validated and repacked. Import into an isolated second environment remains unverified. Review [security and retained configuration](docs/security.md) before deployment or a visibility change. The existing [license](LICENSE) is retained.
+The Gatekeeper architecture remains unchanged: the agent invokes one controlled process, and fixed checks own every write. Installation supports the connected Outlook account's **primary calendar**. No lab mailbox, calendar ID, or notification recipient is embedded in the current flow definitions. Target credentials and policy rows are supplied by the installer.
+
+The official CLI has packed and unpacked the portable package, and local checks pass. A clean import into another environment remains unverified until the owner's independent test. Review [security and configuration](docs/security.md) before deployment or a visibility change. The existing [license](LICENSE) is retained.
 
 ## POC Scope and Limitations
 
