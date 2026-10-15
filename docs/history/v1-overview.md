@@ -82,7 +82,7 @@ The demonstrated rule is:
 
 > Board meetings are critical and cannot be moved. Any meeting that has "board meeting" in the subject is considered a board meeting.
 
-The agent reads that text at runtime. The flow retrieves it independently. Changing the Dataverse row can change protection behavior without changing the agent instructions or writing an equivalent hard-coded subject check. A dynamic-rule demonstration was completed; additional verification was later waived. The policy row itself is environment data and is not included by a standard solution export.
+The agent reads that text at runtime. The flow retrieves it independently. Changing the Dataverse row can change protection behavior without changing the agent instructions or writing an equivalent hard-coded subject check. A dynamic-rule demonstration was completed; additional verification was not run. The policy row itself is environment data and is not included by a standard solution export.
 
 ## Zava ExM Meeting Concierge Agent
 
@@ -117,9 +117,9 @@ Actual JSON, XML, and bot YAML definitions remain under `solution/unpacked`. The
 
 ## Test Scenarios
 
-The final automatic demonstration preserved the board meeting and moved the normal meeting from 11:00â€“11:30 AM to 11:30 AMâ€“12:00 PM EDT on October 1. Sent Items showed the successful notification. Protected-move rejection and a dynamic policy change were also demonstrated.
+The final automatic demonstration preserved the board meeting and moved the normal meeting from 11:00–11:30 AM to 11:30 AM–12:00 PM EDT on October 1. Sent Items showed the successful notification. Protected-move rejection and a dynamic policy change were also demonstrated.
 
-The normal no-conflict scenario has a passing flow regression, but its final autonomous run was not repeated. Two protected meetings conflicting and no replacement slot were not tested; the user waived those scenarios. [Detailed results](../../solution/exports/ZavaExMMeetingConcierge_1_0_0_0_unmanaged.zip) retain that distinction.
+The normal no-conflict scenario has a passing flow regression, but its final autonomous run was not repeated. The two-protected-meeting and no-replacement-slot scenarios were not tested. [Detailed results](../../solution/exports/ZavaExMMeetingConcierge_1_0_0_0_unmanaged.zip) retain that distinction.
 
 ## Key Design Decisions
 
@@ -145,6 +145,6 @@ Start with [solution instructions](../../solution/exports/ZavaExMMeetingConcierg
 
 ## POC Scope and Limitations
 
-Working hours use a Mondayâ€“Friday 9 AMâ€“5 PM fallback in the event's original timezone because the working-hours API was unavailable. The agent owns the two-business-day search and replacement availability check. The flow does not independently validate the entire proposed interval against all busy events. AI classification remains probabilistic, and the protected response text remains board-specific even if policy changes.
+Working hours use a Monday–Friday 9 AM–5 PM fallback in the event's original timezone because the working-hours API was unavailable. The agent owns the two-business-day search and replacement availability check. The flow does not independently validate the entire proposed interval against all busy events. AI classification remains probabilistic, and the protected response text remains board-specific even if policy changes.
 
 The repository is private. The unchanged export retains lab identifiers and the configured notification recipient. Review [security and retained configuration](../../solution/exports/ZavaExMMeetingConcierge_1_0_0_0_unmanaged.zip) before considering public visibility. No public release approval is implied.

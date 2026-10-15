@@ -126,7 +126,7 @@ Recorded live evidence covers no conflict, a resolved ordinary-meeting conflict 
 
 The repository includes **27 local workflow simulations** against the flow definitions, plus package and deployment-script checks. These use simulated services and are separate from live platform tests. The GitHub Actions workflow builds and checks source automatically, with tenant deployment available only through an explicit manual run. The receiving tenant's independent deployment and calendar acceptance results are recorded separately.
 
-See [test evidence and its limits](docs/testing.md). For the interview walkthrough, use the [demo guide](docs/demo.md).
+See [test evidence and its limits](docs/testing.md). To verify an installation, follow the [calendar acceptance scenarios](docs/deployment.md#test-the-installed-solution).
 
 ## Key Design Decisions
 

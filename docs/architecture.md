@@ -65,7 +65,7 @@ The flow searches for the time and enforces the supported board rule with fixed 
 
 The agent remains to demonstrate Copilot Studio integration and explain results. This fixed process could also run without an agent; AI is not required to authorize a move.
 
-See [Setup and maintenance](deployment.md) for native source locations and [Demo guide](demo.md) for the interview walkthrough.
+See [deployment instructions](deployment.md) for installation and [calendar acceptance scenarios](deployment.md#test-the-installed-solution) for live verification.
 
 ## Portable POC configuration
 

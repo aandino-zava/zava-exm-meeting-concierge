@@ -2,8 +2,7 @@
 
 # Zava ExM Meeting Concierge testing
 
-These results derive from my testing on what I derived to be a completed build, a good enough MVP. Each Evidence entry explains what was checked and what that check supports.
-Two scenarios I had orriginally planned for were left untested.
+These records describe observed behavior in the archived implementation. Each Evidence entry identifies the completed check and its limits. Two planned scenarios were not tested.
 
 ## Normal meeting with no conflict
 
@@ -66,7 +65,7 @@ Two scenarios I had orriginally planned for were left untested.
 - **Setup:** Two protected meetings overlap. Setup was not executed as a final scenario.
 - **Expected:** Neither moves; qualifying new protected conflict is reported.
 - **Observed:** Not tested. This scenario was left outside the final demonstration scope.
-- **Status:** Not tested — removed from the remaining test scope by agreement.
+- **Status:** Not tested — no completed run recorded.
 - **Components:** Agent selection, Gatekeeper, notification.
 - **Evidence:** This scenario was not run, so there is no observed result to support a pass or failure. The expected behavior above describes what the agent is instructed to do.
 
@@ -77,7 +76,7 @@ Two scenarios I had orriginally planned for were left untested.
 - **Setup:** A movable conflicting event has no qualifying slot within two business days. Setup was not executed as a final scenario.
 - **Expected:** Leave unchanged and report no-slot outcome; notify if qualifying.
 - **Observed:** Not tested. This scenario was left outside the final demonstration scope.
-- **Status:** Not tested — removed from the remaining test scope by agreement.
+- **Status:** Not tested — no completed run recorded.
 - **Components:** Agent search and notification.
 - **Evidence:** I did not run a calendar example with every eligible replacement time unavailable. The no-slot behavior remains an instruction that still needs a dedicated test.
 
@@ -87,7 +86,7 @@ Two scenarios I had orriginally planned for were left untested.
 - **Purpose:** verify dynamic dataverse rule modification behavior.
 - **Setup:** Temporarily change only the Dataverse rule to protect the normal test event.
 - **Expected:** Agent and Gatekeeper independently apply new policy without instruction/flow edits.
-- **Observed:** Agent read changed policy; flow denied the now-protected normal event and did not move it. Original rule restored. Further verification later waived.
+- **Observed:** Agent read changed policy; flow denied the now-protected normal event and did not move it. Original rule restored. Further verification was not run.
 - **Status:** Passed for completed demonstration.
 - **Components:** Dataverse, agent lookup, independent flow lookup and classification.
 - **Evidence:** After changing only the Dataverse rule, the agent recognized the normal meeting as protected and the flow refused to move it. The meeting remained unchanged, and the original rule was restored afterward. This demonstrated a policy change without editing the agent instructions or the flow.

@@ -108,7 +108,7 @@ Use future temporary events without attendees, within the test account's working
 
 Check actual Outlook times, the resolver's response, and the notification action, rather than just a green parent flow. For a successful send action, inspect Sent Items; it confirms submission, not recipient delivery. Preserve the result even when the test fails.
 
-Record package version/checksum, target environment/tenant, date, configuration checks, each scenario's result, flow run IDs, and any screenshots with private data removed. Use [the acceptance record](../deployment/acceptance.md). This is the owner's independent proof of installation. Do not mark cross-tenant deployment as passed until the actual test completes.
+Record package version/checksum, target environment/tenant, date, configuration checks, each scenario's result, flow run IDs, and any screenshots with private data removed. Use [the acceptance record](../deployment/acceptance.md). This record establishes which installation and runtime checks were completed. Do not mark cross-tenant deployment as passed until the actual test completes.
 
 ## Stop or remove the POC
 
