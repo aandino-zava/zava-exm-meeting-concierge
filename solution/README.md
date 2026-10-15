@@ -9,4 +9,4 @@ The unique solution name remains **ZavaCalendarGovernancePOC**. Platform schema 
 
 A solution export does not contain account credentials, active Dataverse rule rows, calendar events, email, or flow run history. Review connection bindings, the fixed lab mailbox/calendar, and the assistant address before importing elsewhere. Publish the agent and verify both flows are active.
 
-Read the [setup instructions](../docs/implementation.md) and [actual V2 test evidence](../docs/v2-testing.md). This is a Dev pilot; no UAT or production deployment is claimed. Retained historical component metadata is not proof of a runtime AI authorization step; the current resolver contains no AI Builder authorization action.
+Read the [setup instructions](../docs/deployment.md) and [actual V2 test evidence](../docs/testing.md). This is a Dev pilot; no UAT or production deployment is claimed. The latest export contains only one agent tool; the seven retired tools have been removed. The calendar flow contains no AI Builder authorization action. The starter has no concurrency control configured.

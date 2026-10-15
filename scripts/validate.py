@@ -6,7 +6,7 @@ import yaml
 
 root=Path(__file__).resolve().parents[1]
 errors=[]; counts={'json':0,'xml':0,'yaml':0,'links':0,'archive_members':0}
-address_files=[]; legacy_files=[]
+address_files=[]
 patterns={
     'private_key':r'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----',
     'github_token':r'\b(?:gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{40,})\b',
@@ -21,7 +21,6 @@ def inspect(name,data,parse=True):
     for label,pat in patterns.items():
         if re.search(pat,text): errors.append(f'{label}: {name}')
     if re.search(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}',text): address_files.append(name)
-    if re.search(r'Zava[ _-]*Calendar[ _-]*Governance|ZavaCalendarGovernanceAgent',text,re.I): legacy_files.append(name)
     if not parse: return
     try:
         if name.endswith('.json'): json.loads(text); counts['json']+=1
@@ -54,5 +53,12 @@ v1=json.loads((root/'solution/provenance-v1.json').read_text())
 if hashlib.sha256((root/'solution/exports/ZavaExMMeetingConcierge_1_0_0_0_unmanaged.zip').read_bytes()).hexdigest()!=v1['original_export_sha256']: errors.append('V1 archive changed')
 actual={p.relative_to(root/'solution/unpacked').as_posix() for p in (root/'solution/unpacked').rglob('*') if p.is_file()}
 if actual!=set(prov['native_files_sha256']): errors.append('Current provenance file inventory differs')
-print(json.dumps({'checks':counts,'errors':errors,'address_occurrence_files':address_files,'legacy_occurrence_files':legacy_files},indent=2))
+tool_files=list((root/'solution/unpacked/botcomponents').glob('*.action.*/data'))
+if len(tool_files)!=1:
+    errors.append(f'Expected one current agent tool, found {len(tool_files)}')
+else:
+    tool=yaml.safe_load(tool_files[0].read_text(encoding='utf-8'))
+    if tool.get('modelDisplayName')!='Check and move meeting' or tool.get('action',{}).get('kind')!='InvokeFlowTaskAction':
+        errors.append('Current agent tool does not match the checked scheduling flow')
+print(json.dumps({'checks':counts,'errors':errors,'retained_lab_address_files':address_files},indent=2))
 sys.exit(1 if errors else 0)

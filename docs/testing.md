@@ -1,110 +1,38 @@
-> Historical V1 test record. Current V2 evidence is in [v2-testing.md](v2-testing.md).
+# Test evidence
 
-# Zava ExM Meeting Concierge testing
+Keep exported source, observed live results, and owner-reported testing separate.
 
-These results derive from my testing on what I derived to be a completed build, a good enough MVP. Each Evidence entry explains what was checked and what that check supports.
-Two scenarios I had orriginally planned for were left untested.
+## Latest owner-reviewed snapshot
 
-## Normal meeting with no conflict
+On October 15, 2026, the owner removed the seven retired tools and reported satisfactory manual testing. A fresh authenticated export from **Zava PP Lab Dev** confirms:
 
-- **Purpose:** verify normal meeting with no conflict behavior.
-- **Setup:** Create a normal event with only an adjacent, non-overlapping event.
-- **Expected:** No search, move, or notification.
-- **Observed:** The first automatic run moved the meeting unnecessarily. After correcting the overlap check, a direct flow test found no conflict and made no calendar update. I did not repeat the complete automatic process after that fix.
-- **Status:** Partial — the corrected flow passed; the complete automatic process was not retested.
-- **Components:** Agent, conflict filter, Gatekeeper.
-- **Evidence:** The recorded flow run showed an empty conflict list and no calendar update. This supports the flow fix, but does not establish that the complete automatic process passed.
+- One agent tool remains: **Check and move meeting**.
+- There are two flows and one governance table.
+- The calendar-flow definition is unchanged from the version used in the recorded automatic tests below.
+- The starter no longer has concurrency control configured. This snapshot does not promise one-at-a-time processing.
+- Outlook and Dataverse remain embedded flow connections.
 
+All 22 local workflow checks, source/link/fingerprint checks, and the official PAC package rebuild passed against this refreshed snapshot. Both original PDF reports were verified byte-for-byte unchanged.
 
-## Normal meeting conflicting with a board meeting
+No new run IDs were supplied for the owner's manual tests. No new live calendar tests were performed for this repository-only refresh.
 
-- **Purpose:** verify normal meeting conflicting with a board meeting behavior.
-- **Setup:** A 30-minute normal event overlaps an existing protected board meeting.
-- **Expected:** Move only the normal event and preserve duration.
-- **Observed:** Live agent demonstration moved the normal event from 14:00–14:30 UTC to 14:30–15:00 UTC on October 1; Graph confirmed board unchanged.
-- **Status:** Passed.
-- **Components:** Agent, Graph, Gatekeeper.
-- **Evidence:** During the live agent demonstration, a follow-up calendar read confirmed that the normal meeting had moved and the board meeting had stayed at its original time.
+## Recorded live tests
 
+These tests ran in Dev on October 15, before the latest tool removal and starter-setting change. Times are Eastern.
 
-## New board meeting conflicting with normal meeting
+| Scenario | Observed result | Evidence |
+| --- | --- | --- |
+| Fresh agent call without conflict | NoConflict; no move, no email, no sign-in prompt | Copilot Studio test session |
+| Automatic ordinary meeting versus board meeting | Planning moved from 10:00-10:30 to 11:00-11:30 on October 20. Board meeting stayed 10:00-11:00. Resolved; one move, no email. | Starter run `08584095458440334550013174027CU28` and independent Outlook read |
+| Automatic two protected meetings | Both stayed unchanged. NeedsHelp; zero moves, notificationSent true. One new help email appeared in sent mail. | Starter run `08584095457683799364846773689CU01` and independent calendar/email reads |
+| Direct calendar flow | Permitted moves and protected conflicts behaved as expected; working hours and Eastern time zone were checked | [Earlier V2 build record](history/v2-build-record.md) |
 
-- **Purpose:** verify new board meeting conflicting with normal meeting behavior.
-- **Setup:** New protected board event overlaps a normal event at 11:00–11:30 AM EDT on October 1.
-- **Expected:** Preserve board, move normal, send actual outcome notification.
-- **Observed:** Final automatic run moved normal to 11:30 AM–12:00 PM EDT; board unchanged. Success message appeared in Sent Items at 3:30 PM September 30. Recipient delivery/read not verified.
-- **Status:** Passed.
-- **Components:** Trigger, agent, Gatekeeper, notification.
-- **Evidence:** Both flows completed successfully. A refreshed calendar showed the normal meeting at its new time and the board meeting unchanged. Outlook Sent Items also showed the success notification with both meetings and the old and new times. I did not verify delivery to the recipient's inbox.
+All seven temporary events were removed. No attendees were invited. A successful notification action and sent-mail entry establish submission to Outlook, not recipient delivery.
 
+## Local workflow checks
 
-## Attempted protected board modification
+Run `python scripts/test_resolver.py` from the repository root. The 22 cases execute the actual exported calendar-flow definitions against in-memory services. They cover ordinary and protected conflicts, no conflict, adjacent meetings, missing/unsupported rules, incomplete pages, changed events, a newly booked destination, write failures, no available slot, multiple conflicts, recurring/all-day events, missing events, fixed authorization, nesting, subject injection, weekends, and daylight saving.
 
-- **Purpose:** verify attempted protected board modification behavior.
-- **Setup:** Invoke enforcement against the protected target with proposed replacement timestamps.
-- **Expected:** Reject and leave event unchanged.
-- **Observed:** Returned Board meetings are protected and cannot be moved after independent reads; board unchanged.
-- **Status:** Passed.
-- **Components:** Gatekeeper, Graph, Dataverse, AI Classify.
-- **Evidence:** The flow returned “Board meetings are protected and cannot be moved,” and the recorded check confirmed that the board meeting had not changed.
+This limited workflow-expression interpreter does not authenticate connectors, execute the starter, test parallel requests, or replace live platform tests. Source checks also validate file formats, links, archive integrity, fingerprints, credential patterns, and the single agent tool.
 
-
-## Case insensitive protection
-
-- **Purpose:** verify case insensitive protection behavior.
-- **Setup:** Use uppercase, title-case, and lowercase board-meeting subjects.
-- **Expected:** Interpret subject-based rule without case dependence.
-- **Observed:** The uppercase example passed in a direct flow test. Title-case and lowercase examples passed during agent demonstrations. I did not test every possible spelling or capitalization.
-- **Status:** Passed for observed cases.
-- **Components:** Agent interpretation and Gatekeeper.
-- **Evidence:** The build notes record protection working for “BOARD MEETING,” “Q4 Board Meeting,” and a lowercase “board meeting” subject. These were individual checks during the build, rather than a complete test of every variation.
-
-
-## Two board meetings conflicting
-
-- **Purpose:** verify two board meetings conflicting behavior.
-- **Setup:** Two protected meetings overlap. Setup was not executed as a final scenario.
-- **Expected:** Neither moves; qualifying new protected conflict is reported.
-- **Observed:** Not tested. This scenario was left outside the final demonstration scope.
-- **Status:** Not tested — removed from the remaining test scope by agreement.
-- **Components:** Agent selection, Gatekeeper, notification.
-- **Evidence:** This scenario was not run, so there is no observed result to support a pass or failure. The expected behavior above describes what the agent is instructed to do.
-
-
-## No replacement slot
-
-- **Purpose:** verify no replacement slot behavior.
-- **Setup:** A movable conflicting event has no qualifying slot within two business days. Setup was not executed as a final scenario.
-- **Expected:** Leave unchanged and report no-slot outcome; notify if qualifying.
-- **Observed:** Not tested. This scenario was left outside the final demonstration scope.
-- **Status:** Not tested — removed from the remaining test scope by agreement.
-- **Components:** Agent search and notification.
-- **Evidence:** I did not run a calendar example with every eligible replacement time unavailable. The no-slot behavior remains an instruction that still needs a dedicated test.
-
-
-## Dynamic Dataverse rule modification
-
-- **Purpose:** verify dynamic dataverse rule modification behavior.
-- **Setup:** Temporarily change only the Dataverse rule to protect the normal test event.
-- **Expected:** Agent and Gatekeeper independently apply new policy without instruction/flow edits.
-- **Observed:** Agent read changed policy; flow denied the now-protected normal event and did not move it. Original rule restored. Further verification later waived.
-- **Status:** Passed for completed demonstration.
-- **Components:** Dataverse, agent lookup, independent flow lookup and classification.
-- **Evidence:** After changing only the Dataverse rule, the agent recognized the normal meeting as protected and the flow refused to move it. The meeting remained unchanged, and the original rule was restored afterward. This demonstrated a policy change without editing the agent instructions or the flow.
-
-
-## Protected event without a real conflict
-
-- **Purpose:** verify protected event without a real conflict behavior.
-- **Setup:** New protected event has only a touching endpoint with another event.
-- **Expected:** No move and no notification.
-- **Observed:** Recorded automatic run ignored adjacency and performed neither action.
-- **Status:** Passed.
-- **Components:** Trigger, agent strict overlap.
-- **Evidence:** The recorded automatic run treated the back-to-back meetings as non-overlapping and took neither action: it did not move a meeting or send a notification.
-
-## Corrections and evidence limits
-
-Earlier runs exposed connection problems and a mix-up between the requested end time and the explanation for the move. The agent tool's input descriptions were corrected before the final successful run. Those earlier failures are not counted as passes.
-
-These results describe the behavior observed during the build. They do not guarantee every possible calendar situation will work. Mailbox screenshots and raw service responses are not included because they contain account details of my demo tenant. The [solution instructions](../solution/README.md#what-was-checked) separately explain what was checked in the exported package.
+Follow the [demo guide](demo.md) to repeat live checks. Verify actual calendar times and the returned outcome as well as a green run indicator. [Earlier evidence](history/README.md) retains waived tests and failed attempts as recorded.

@@ -1,54 +1,56 @@
 # Zava ExM Meeting Concierge
 
-A Dev implementation that protects board meetings and resolves calendar conflicts using fixed rules. One Copilot Studio agent explains the outcome. Two Power Automate flows handle the automatic trigger and the checked calendar changes.
+I built this Dev pilot to explore a practical question: how can an AI agent help with calendar conflicts while fixed checks control every calendar change?
 
-**Current status:** V2 is installed in Dev. The approved lab owner connection is saved, the agent is published, and both flows are enabled. Direct and automatic acceptance tests passed. See the [test record](docs/v2-testing.md).
+The current solution has **one Copilot Studio agent, one agent tool, two Power Automate flows, and one Dataverse rule table**. Only **Check and move meeting** is exposed as an agent tool.
 
-## What changed in V2
+## What it does
 
-The agent passes the new meeting ID to **Check and move meeting**. It no longer chooses a replacement time or asks a model for permission to change the calendar. The flow reads the actual event and active Dataverse rule, finds a free time, checks again before writing, and verifies the result.
-
-- Protect subjects containing **board meeting**, regardless of capitalization.
-- Keep the meeting length and use Outlook's working hours and time zone.
-- Search after the original meeting ends, through the second following business day, on weekdays only.
-- Email Nancy only when a confirmed conflict cannot be fully resolved automatically.
-- Leave recurring and all-day meetings for review.
+- Protects subjects containing **board meeting**, regardless of capitalization.
+- Moves eligible conflicting meetings while keeping their length.
+- Uses Outlook working hours and time zone; searches after the original meeting ends through the second following business day, on weekdays only.
+- Checks again before changing the calendar and verifies the result afterward.
+- Emails Nancy only when a confirmed conflict cannot be fully resolved automatically.
 
 ```mermaid
 flowchart TD
     O[New Outlook meeting] --> T[Check new meeting]
     T --> A[One Copilot Studio agent]
     A --> F[Check and move meeting]
-    D[(Active Dataverse rule)] --> F
-    H[Outlook working hours and calendar] --> F
-    F --> C{Fixed checks pass?}
-    C -->|Yes| W[Move and verify]
-    C -->|No| N[Keep unresolved for review]
-    W --> R[Return confirmed outcome]
-    N --> E[Email Nancy only for a confirmed unresolved conflict]
-    E --> R
-    R --> X[Agent explains result]
+    D[(Dataverse rule)] --> F
+    C[Outlook calendar and working hours] --> F
+    F --> R[Return verified outcome]
+    F -->|Confirmed conflict remains unresolved| N[Email Nancy]
+    N --> R
+    R --> E[Agent explains the result]
 ```
 
-Read the [V2 design](docs/v2-design.md), [setup notes](docs/implementation.md), [security boundaries](docs/security.md), and [test evidence](docs/v2-testing.md).
+The agent calls one checked process. The flow reads the calendar and rule, finds a time, controls the change, and confirms the outcome. Outlook and Dataverse connections remain inside the flow; separate agent connector tools are unnecessary.
 
-## Source and history
+## Start here
 
-The existing solution identity is **ZavaCalendarGovernancePOC**. Display names use simple language; platform schema names stay unchanged so existing references continue to work. The [solution folder](solution/README.md) contains the current native export, unpacked source, and file hashes. The original V1 ZIP and provenance are retained separately. Historical PDFs and [V1 tests](docs/testing.md) describe the earlier implementation.
+| You want to... | Read |
+| --- | --- |
+| Understand the steps and why they changed | [How it works](docs/architecture.md) |
+| Demo it and explain the design | [Demo guide](docs/demo.md) |
+| Import or maintain it | [Setup and maintenance](docs/deployment.md) |
+| Check the results and their limits | [Test evidence](docs/testing.md) |
+| Review access and safeguards | [Security](docs/security.md) |
 
-This is the single-calendar **Zava PP Lab Dev** pilot. It is not a production deployment or a multi-executive service. A durable request ledger, stronger caller restrictions, verified production roles, isolated UAT, and broader policy coverage remain future work.
+## Why I built this in Dev
 
-## Validation
+I use **Zava PP Lab Dev** to build, test, and refine the solution before considering a release. One unmanaged solution keeps the agent, flows, rule table, and connection references together as editable source that can be exported and reviewed in Git. It also keeps this project separate from the Default environment, which my lab reserves for personal productivity.
 
-```powershell
-python -m pip install PyYAML tzdata
-python scripts/validate.py
-python scripts/test_resolver.py
-./scripts/pack-solution.ps1
-```
+Dev is the first step in my application lifecycle management (ALM) approach. UAT is where a release would be checked before production; Prod is where approved releases would run. This Concierge has been demonstrated in Dev and has not been promoted to UAT or Prod.
 
-The Python checks do not call a live service. Live evidence is recorded separately. See [script instructions](scripts/README.md).
+For the wider environment structure, access controls, deployment pipelines, and approvals, see my [Zava Power Platform ALM lab](https://github.com/aandino-zava/zava-power-platform-lab), its [architecture and rationale](https://github.com/aandino-zava/zava-power-platform-lab/blob/main/docs/architecture-and-rationale.md), and its [deployment runbook](https://github.com/aandino-zava/zava-power-platform-lab/blob/main/docs/deployment-runbook.md).
 
-## Interview narrative
+## Source and earlier work
 
-V1 proved that an agent could coordinate calendar work through a separate write path. Review showed that asking a model inside that path still left permission uncertain. V2 makes the decision repeatable: a small supported policy, fixed checks, one scheduling path, verified outcomes, and an email only when help is needed. The useful architecture lesson is to use AI for communication while keeping business permissions and calendar changes testable.
+- [solution/](solution/README.md): current live Dev export, native source, and fingerprints.
+- [scripts/](scripts/README.md): export, validation, local workflow checks, and package commands.
+- [Earlier versions](docs/history/README.md): original reports, architecture, tests, and earlier V2 build evidence.
+
+Native platform identifiers and the existing [license](LICENSE) are preserved. This refresh does not change repository visibility or grant a public release.
+
+This is a single-calendar pilot. The supported policy is narrow; recurring and all-day meetings require review. The current starter allows overlapping requests. A durable lock, duplicate-request tracking, stronger caller restrictions, verified production roles, and isolated UAT remain future work.

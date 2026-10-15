@@ -1,15 +1,6 @@
 {
   "properties": {
     "connectionReferences": {
-      "shared_microsoftcopilotstudio": {
-        "runtimeSource": "embedded",
-        "connection": {
-          "connectionReferenceLogicalName": "cr9b0_sharedmicrosoftcopilotstudio_52e72"
-        },
-        "api": {
-          "name": "shared_microsoftcopilotstudio"
-        }
-      },
       "shared_office365": {
         "runtimeSource": "embedded",
         "connection": {
@@ -18,19 +9,28 @@
         "api": {
           "name": "shared_office365"
         }
+      },
+      "shared_microsoftcopilotstudio": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "cr9b0_sharedmicrosoftcopilotstudio_52e72"
+        },
+        "api": {
+          "name": "shared_microsoftcopilotstudio"
+        }
       }
     },
     "definition": {
       "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "contentVersion": "1.0.0.0",
       "parameters": {
-        "$connections": {
-          "defaultValue": {},
-          "type": "Object"
-        },
         "$authentication": {
           "defaultValue": {},
           "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
         }
       },
       "triggers": {
@@ -45,19 +45,13 @@
           },
           "type": "OpenApiConnection",
           "inputs": {
-            "host": {
-              "connectionName": "shared_office365",
-              "operationId": "CalendarGetOnNewItemsV3",
-              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
-            },
             "parameters": {
               "table": "AAMkADgwODg1YTI2LTg1YjItNGEwOC05YzMzLTdkZGUzOTIwYzA0NgBGAAAAAAAZrtvm3EeARJqTLcHSD4TRBwB_rgsxhUtDQ6vPGF22H5v_AAAAAAEGAAB_rgsxhUtDQ6vPGF22H5v_AAACoruSAAA="
             },
-            "authentication": "@parameters('$authentication')"
-          },
-          "runtimeConfiguration": {
-            "concurrency": {
-              "runs": 1
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+              "operationId": "CalendarGetOnNewItemsV3",
+              "connectionName": "shared_office365"
             }
           }
         }
@@ -70,21 +64,20 @@
           },
           "type": "OpenApiConnectionWebhook",
           "inputs": {
-            "host": {
-              "connectionName": "shared_microsoftcopilotstudio",
-              "operationId": "ExecuteCopilotAsyncV2",
-              "apiId": "/providers/Microsoft.PowerApps/apis/shared_microsoftcopilotstudio"
-            },
             "parameters": {
               "Copilot": "cr9b0_ZavaCalendarGovernanceAgent",
               "body/message": "Check the newly created meeting with eventId: @{triggerOutputs()?['body/id']}. Call Check and move meeting once with this new meeting ID and report the returned result. The flow handles scheduling, fixed rules, and unresolved-conflict email. Do not search for a time or send an email yourself."
             },
-            "authentication": "@parameters('$authentication')"
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_microsoftcopilotstudio",
+              "operationId": "ExecuteCopilotAsyncV2",
+              "connectionName": "shared_microsoftcopilotstudio"
+            }
           }
         }
       }
     },
-    "templateName": ""
+    "templateName": null
   },
   "schemaVersion": "1.0.0.0"
 }
