@@ -1,56 +1,161 @@
 # Zava ExM Meeting Concierge
 
-I built this Dev pilot to explore a practical question: how can an AI agent help with calendar conflicts while fixed checks control every calendar change?
+## Overview
 
-The current solution has **one Copilot Studio agent, one agent tool, two Power Automate flows, and one Dataverse rule table**. Only **Check and move meeting** is exposed as an agent tool.
+I built Zava ExM Meeting Concierge to explore a practical governance problem: how can I let an AI agent reason about calendar changes while keeping the final write decision in a separate enforcement path?
 
-## What it does
+This proof of concept uses **one Copilot Studio agent, two Power Automate flows, Microsoft Graph, and a governance rule table in Dataverse**. The agent invokes one tool, **Check and move meeting**, and explains its verified result. The flow selects eligible meetings, finds replacement times, and enforces the checks. **Every calendar write goes through this Gatekeeper; the agent cannot authorize a change through its own reasoning.**
 
-- Protects subjects containing **board meeting**, regardless of capitalization.
-- Moves eligible conflicting meetings while keeping their length.
-- Uses Outlook working hours and time zone; searches after the original meeting ends through the second following business day, on weekdays only.
-- Checks again before changing the calendar and verifies the result afterward.
-- Emails Nancy only when a confirmed conflict cannot be fully resolved automatically.
+The repository contains the actual unmanaged solution exported from **Zava PP Lab Dev**, with architecture, deployment guidance, and test evidence. The current V2 export reflects the owner's removal of the unused agent tools. This is a demonstrated Dev implementation, with production gaps documented below.
+
+## Design Rationale
+
+Generative models are useful for understanding requests, coordinating actions, and explaining results. Their answers are probabilistic, so business protections need an enforcement path outside the model's instructions.
+
+When a prompt is the only control over calendar changes, the design is exposed to:
+
+1. **Prompt injection:** a request or event description may attempt to override instructions.
+2. **Instruction drift and hallucination:** the model may apply a rule inconsistently or invent an authorization.
+3. **Maintenance risk:** business policy, scheduling logic, and conversational instructions become difficult to change and test independently.
+
+### The Solution: The Decoupled Gatekeeper Architecture
+
+The design separates policy, intelligence, and execution:
+
+- **Decoupled policy — Dataverse:** the active board-protection rule lives outside the prompt. The flow reads it at runtime and again before a write. V2 recognizes the approved rule explicitly; unsupported policy text blocks automatic resolution.
+- **Bounded intelligence — Copilot Studio:** one agent passes the meeting ID to one flow tool and explains the result. It has no separate calendar-write tool and does not supply a replacement time or permission decision.
+- **Deterministic enforcement — Power Automate:** the Gatekeeper reads authoritative calendar data, applies fixed eligibility and availability checks, performs a guarded change, and verifies the outcome.
+
+V2 simplifies the original approach by moving time selection and policy enforcement into this single checked process. Model classification no longer authorizes a calendar change. The Gatekeeper pattern remains the central architectural decision.
+
+## Architecture
 
 ```mermaid
 flowchart TD
     O[New Outlook meeting] --> T[Check new meeting]
-    T --> A[One Copilot Studio agent]
-    A --> F[Check and move meeting]
-    D[(Dataverse rule)] --> F
-    C[Outlook calendar and working hours] --> F
-    F --> R[Return verified outcome]
-    F -->|Confirmed conflict remains unresolved| N[Email Nancy]
-    N --> R
-    R --> E[Agent explains the result]
+    T --> A[Zava ExM Meeting Concierge]
+    A --> K[Check and move meeting]
+    D[(Dataverse governance rule)] --> R
+    C[Microsoft Graph calendar and working hours] --> E
+    subgraph Gatekeeper [Independent calendar write boundary]
+      K --> E[Read authoritative event and strict conflicts]
+      E --> H{Confirmed conflict?}
+      H -->|No| N[Return NoConflict without changes]
+      H -->|Yes| R[Read supported active policy]
+      R --> S[Select eligible meetings and find a free time]
+      S --> V[Re-read policy, target ETag, and destination]
+      V --> Q{All fixed checks pass?}
+      Q -->|Yes| W[Graph PATCH with If-Match]
+      W --> B[Read back changes and remaining conflicts]
+      Q -->|No| X[Reject change or require review]
+    end
+    B --> OUT[Return verified outcome]
+    X --> OUT
+    N --> OUT
+    OUT -->|Confirmed conflict remains unresolved| EA[Notify executive assistant when new protected event conflicts]
+    OUT --> EX[Agent explains the result]
 ```
 
-The agent calls one checked process. The flow reads the calendar and rule, finds a time, controls the change, and confirms the outcome. Outlook and Dataverse connections remain inside the flow; separate agent connector tools are unnecessary.
+The notification label describes the protected-event scenario. The implemented escalation rule also covers other confirmed conflicts that cannot be resolved automatically. A successful automatic resolution sends no email; a read failure that has not established a conflict does not trigger an unresolved-conflict email.
 
-## Start here
+Outlook and Dataverse connections operate inside the flow. Removing their separate agent tools does not remove the flow's connections. This boundary governs the configured agent tool path; the account behind the Outlook connection still has its platform permissions.
 
-| You want to... | Read |
-| --- | --- |
-| Understand the steps and why they changed | [How it works](docs/architecture.md) |
-| Demo it and explain the design | [Demo guide](docs/demo.md) |
-| Import or maintain it | [Setup and maintenance](docs/deployment.md) |
-| Check the results and their limits | [Test evidence](docs/testing.md) |
-| Review access and safeguards | [Security](docs/security.md) |
+## How It Works
+
+1. **Detect a new meeting.** The creation-only Outlook trigger starts **Check new meeting**, which asks the agent to call the Gatekeeper with the event ID.
+2. **Read the actual calendar.** The Gatekeeper retrieves the event and overlapping events. It ignores the event itself, cancelled events, free events, and meetings that only touch at an endpoint.
+3. **Check the policy.** If a conflict exists, the flow reads active Dataverse rules. Subjects containing **board meeting**, regardless of capitalization, are protected. Empty or unsupported rules stop automatic resolution.
+4. **Choose what may move.** If the new meeting is ordinary, move that meeting. If it is protected, move eligible ordinary meetings that conflict with it. Two conflicting protected meetings require review. Recurring and all-day events also require review.
+5. **Find a suitable time.** Preserve the full meeting length. Search after the original meeting ends, no earlier than the current time, through the second following business day. Use Outlook working hours and time zone, on weekdays only. Missing or invalid working hours stop the move.
+6. **Check again before writing.** Re-read the policy and target event, require an unchanged nonempty ETag, and read the destination again to confirm the full interval is free. The write uses Graph PATCH with **If-Match**, without an automatic retry.
+7. **Verify the result.** Read the moved event back and check the original conflict again. Report a resolution only when the selected moves and conflict clearance are confirmed.
+8. **Escalate only when needed.** If a confirmed conflict remains unresolved, attempt one notification to the executive assistant. Return the outcome, confirmed move count, need for help, and notification status for the agent to explain.
+
+See [the detailed architecture](docs/architecture.md) for the exact search behavior, result states, and failure handling.
+
+## The Gatekeeper Pattern
+
+The agent can request that a meeting be checked. It cannot turn its explanation, a suggested time, or text in an event into permission to change the calendar. The Gatekeeper accepts the event ID and obtains the facts it needs independently.
+
+The initial reads establish the conflict and identify eligible moves. The final reads check for changed policy, a stale target, and newly occupied destination time. Required read failures, incomplete calendar results, unsupported rules, or failed checks do not permit a write. Post-write reads determine what can be reported as confirmed.
+
+This separation is the reusable pattern: **AI coordinates and explains; a controlled process enforces the business rules and owns the write.** Each read has a purpose, while the agent no longer duplicates the flow's scheduling work.
+
+The checks do not reserve a destination slot or create a transaction across Outlook and Dataverse. An external booking can race with the last availability read, and overlapping requests can compete for a slot. Those limitations require additional controls before production use.
+
+## Natural Language Governance with Dataverse
+
+The demonstrated rule is:
+
+> Board meetings are critical and cannot be moved. Any meeting that has "board meeting" in the subject is considered a board meeting.
+
+Dataverse keeps the policy visible and separate from agent instructions. V2 normalizes this text, recognizes the supported rule, and applies a case-insensitive subject check. It does not ask a model to interpret arbitrary policy prose as authorization.
+
+A new business rule needs a reviewed implementation and tests before automatic enforcement. Editing a row alone cannot grant new permissions. The solution package includes the table definition; active policy rows must be configured in the target environment.
+
+## Zava ExM Meeting Concierge Agent
+
+The agent has one tool: **Check and move meeting**. It passes the meeting ID, invokes the controlled process, and explains the returned outcome. Separate calendar-read, rule-read, and duplicate flow tools have been removed. This is one agent with two flows, rather than a multi-agent system.
+
+Keeping the agent demonstrates Copilot Studio integration and conversational reporting. The fixed scheduling process does not depend on AI to decide whether a calendar change is allowed.
+
+## Microsoft Graph
+
+Graph supplies authoritative event details, calendarView intervals, and working hours through getSchedule. The Gatekeeper uses exact busy-interval endpoints to find a time that fits the meeting's full duration. Its calendar write is a PATCH guarded by the target event's ETag through If-Match, followed by verification reads.
+
+Recurring events can appear in calendar reads, but moving them is outside the supported automatic behavior in this release.
+
+## Power Platform Components
+
+| Exported component | Count | Role |
+| --- | ---: | --- |
+| Copilot Studio agent | 1 | Invokes the checked process and explains results |
+| Agent flow tool | 1 | Exposes Check and move meeting |
+| Cloud flows | 2 | Detect a new meeting; check and resolve conflicts |
+| Governance table | 1 | Stores the supported business rule |
+| Connection references | 2 | Bind the exported Copilot Studio and Outlook connections |
+| Bot components, including the tool and system topics | 15 | Native agent configuration; includes the single tool above |
+| Generated AI Skill Config | 1 | Retained platform artifact; no AI classification authorizes writes |
+| Environment variable definitions | 0 | Mailbox and recipient settings require deployment review |
+
+Dataverse actions remain within the calendar flow. Counts describe exported components, rather than every connection used by an action. See [setup and maintenance](docs/deployment.md) for native definitions and connection binding details.
+
+## Test Scenarios
+
+Live V2 evidence covers no conflict, a resolved ordinary-meeting conflict with the board meeting preserved, and two protected meetings requiring help. The resolved case sent no notification; the unresolved protected conflict submitted an assistant email. Calendar times and notification results were checked beyond the parent flow's success status.
+
+The repository also includes **22 local workflow simulations** against the flow definitions. These exercise fixed checks with simulated services; they are separate from live platform tests. The latest export reflects the owner's subsequent tool cleanup and manual acceptance. Earlier live evidence predates that cleanup and the removal of the starter's concurrency setting.
+
+See [test evidence and its limits](docs/testing.md). For the interview walkthrough, use the [demo guide](docs/demo.md).
+
+## Key Design Decisions
+
+- Keep policy outside the prompt, with a fresh read before a write.
+- Give the agent one controlled tool and keep calendar mutation inside the Gatekeeper.
+- Use fixed policy checks and exact availability intervals for repeatable behavior.
+- Preserve meeting duration and use Outlook working hours rather than a fallback schedule.
+- Verify actual calendar outcomes before reporting success.
+- Notify the executive assistant only for confirmed conflicts that remain unresolved.
+- Preserve native solution identities and export evidence for maintainability.
 
 ## Why I built this in Dev
 
-I use **Zava PP Lab Dev** to build, test, and refine the solution before considering a release. One unmanaged solution keeps the agent, flows, rule table, and connection references together as editable source that can be exported and reviewed in Git. It also keeps this project separate from the Default environment, which my lab reserves for personal productivity.
+I placed the whole solution in **Zava PP Lab Dev** because this is where I build, test, and refine it. I needed room to adjust the agent, change the rules, and troubleshoot the flows without putting unfinished changes into UAT or Prod.
 
-Dev is the first step in my application lifecycle management (ALM) approach. UAT is where a release would be checked before production; Prod is where approved releases would run. This Concierge has been demonstrated in Dev and has not been promoted to UAT or Prod.
+Keeping the agent, flows, rule table, and connection references together in one unmanaged solution gives me an editable starting point and a package I can export and track in Git. It also keeps this project separate from the Default environment, which my lab design reserves for personal productivity.
 
-For the wider environment structure, access controls, deployment pipelines, and approvals, see my [Zava Power Platform ALM lab](https://github.com/aandino-zava/zava-power-platform-lab), its [architecture and rationale](https://github.com/aandino-zava/zava-power-platform-lab/blob/main/docs/architecture-and-rationale.md), and its [deployment runbook](https://github.com/aandino-zava/zava-power-platform-lab/blob/main/docs/deployment-runbook.md).
+Dev is the first step in my application lifecycle management (ALM) approach. UAT is where a release would be checked before production, and Prod is where approved changes would be deployed. This Concierge implementation has been built and demonstrated in Dev; I have not promoted it to UAT or Prod.
 
-## Source and earlier work
+For instructions on setting up that environment structure, access controls, deployment pipelines, and approvals, visit my [Zava Power Platform ALM lab repository](https://github.com/aandino-zava/zava-power-platform-lab). Start with its [architecture and rationale](https://github.com/aandino-zava/zava-power-platform-lab/blob/main/docs/architecture-and-rationale.md), then follow the [deployment runbook](https://github.com/aandino-zava/zava-power-platform-lab/blob/main/docs/deployment-runbook.md).
 
-- [solution/](solution/README.md): current live Dev export, native source, and fingerprints.
-- [scripts/](scripts/README.md): export, validation, local workflow checks, and package commands.
-- [Earlier versions](docs/history/README.md): original reports, architecture, tests, and earlier V2 build evidence.
+## Deployment and Import Notes
 
-Native platform identifiers and the existing [license](LICENSE) are preserved. This refresh does not change repository visibility or grant a public release.
+Follow [setup and maintenance](docs/deployment.md) to bind connections, review the configured mailbox and assistant recipient, seed the active rule, publish the agent, and enable both flows. The approved Dev configuration uses the existing lab owner's Outlook connection; review run-only callers before using that configuration elsewhere.
 
-This is a single-calendar pilot. The supported policy is narrow; recurring and all-day meetings require review. The current starter allows overlapping requests. A durable lock, duplicate-request tracking, stronger caller restrictions, verified production roles, and isolated UAT remain future work.
+The native source has been validated and repacked. Import into an isolated second environment remains unverified. Review [security and retained configuration](docs/security.md) before deployment or a visibility change. The existing [license](LICENSE) is retained.
+
+## POC Scope and Limitations
+
+This is a single-calendar pilot with one supported policy. Recurring and all-day meetings require manual review, automatic resolution is limited to ten moves per request, and the search does not model holidays. Missing data and unsupported rules stop automatic changes.
+
+The current starter has no concurrency control configured. Automatic and direct requests lack a durable mailbox lock and duplicate-request tracking. An ETag protects the target event against stale updates but does not reserve the destination. A request ledger, stronger caller restrictions, verified production roles, broader policy scope, and isolated UAT remain production work.

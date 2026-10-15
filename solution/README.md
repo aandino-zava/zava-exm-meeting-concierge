@@ -5,7 +5,7 @@
 - `provenance.json` records its version, origin, archive hash, and every native file hash.
 - The `1_0_0_0` ZIP and `provenance-v1.json` preserve the original V1 evidence.
 
-The unique solution name remains **ZavaCalendarGovernancePOC**. Platform schema names and component IDs are retained. Display names are **Check new meeting** and **Check and move meeting**.
+Platform schema names and component IDs are retained. Flow display names are **Check new meeting** and **Check and move meeting**.
 
 A solution export does not contain account credentials, active Dataverse rule rows, calendar events, email, or flow run history. Review connection bindings, the fixed lab mailbox/calendar, and the assistant address before importing elsewhere. Publish the agent and verify both flows are active.
 

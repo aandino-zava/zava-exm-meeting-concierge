@@ -25,6 +25,6 @@ See [How it works](architecture.md), [test evidence](testing.md), and [scripts](
 | Agent tool | [Single flow tool](../solution/unpacked/botcomponents/cr9b0_ZavaCalendarGovernanceAgent.action.ModifycalendarWithRuleCheck/data) |
 | Meeting rule table | [Table definition](../solution/unpacked/Entities/cr9b0_CalendarGovernanceRule/Entity.xml) |
 
-The user-facing names are simple. Internal names retain `ZavaCalendarGovernancePOC` and `cr9b0_` so existing platform references stay consistent.
+User-facing names remain easy to follow. Native solution identifiers and schema names are retained so existing platform references stay consistent.
 
 The table is user owned. Rule text is `cr9b0_ruletext`, the display name is `cr9b0_name`, and the flow reads active rows from `cr9b0_calendargovernancerules`. A solution export contains the table definition, not the rule rows.
