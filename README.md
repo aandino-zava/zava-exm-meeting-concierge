@@ -6,7 +6,7 @@ I built Zava ExM Meeting Concierge to explore a practical governance problem: ho
 
 This proof of concept uses **one Copilot Studio agent, two Power Automate flows, Microsoft Graph, and a governance rule table in Dataverse**. The agent invokes one tool, **Check and move meeting**, and explains its verified result. The flow selects eligible meetings, finds replacement times, and enforces the checks. **Every calendar write goes through this Gatekeeper; the agent cannot authorize a change through its own reasoning.**
 
-The repository contains the native solution source, a **portable V2.1 unmanaged POC package**, architecture, deployment guidance, and test evidence. The package builds on the owner-reviewed Dev solution and replaces lab-specific settings with target-environment configuration. Earlier live exports remain preserved. The portable package awaits an independent manual import test; production gaps are documented below.
+The repository contains native solution source, a **deployable solution package**, architecture, deployment guidance, and test evidence. GitHub Actions builds and checks the package, then deploys it to an authorized target environment on request. Each installation supplies its own calendar settings and connections. Independent target deployment and calendar acceptance remain to be verified; production gaps are documented below.
 
 ## Design Rationale
 
@@ -22,11 +22,11 @@ When a prompt is the only control over calendar changes, the design is exposed t
 
 The design separates policy, intelligence, and execution:
 
-- **Decoupled policy — Dataverse:** the active board-protection rule lives outside the prompt. The flow reads it at runtime and again before a write. V2 recognizes the approved rule explicitly; unsupported policy text blocks automatic resolution.
+- **Decoupled policy — Dataverse:** the active board-protection rule lives outside the prompt. The flow reads it at runtime and again before a write. The flow recognizes the approved rule explicitly; unsupported policy text blocks automatic resolution.
 - **Bounded intelligence — Copilot Studio:** one agent passes the meeting ID to one flow tool and explains the result. It has no separate calendar-write tool and does not supply a replacement time or permission decision.
 - **Deterministic enforcement — Power Automate:** the Gatekeeper reads authoritative calendar data, applies fixed eligibility and availability checks, performs a guarded change, and verifies the outcome.
 
-V2 simplifies the original approach by moving time selection and policy enforcement into this single checked process. Model classification no longer authorizes a calendar change. The Gatekeeper pattern remains the central architectural decision.
+The design keeps time selection and policy enforcement in this single checked process. Model classification does not authorize a calendar change. The Gatekeeper pattern remains the central architectural decision.
 
 ## Architecture
 
@@ -89,7 +89,7 @@ The demonstrated rule is:
 
 > Board meetings are critical and cannot be moved. Any meeting that has "board meeting" in the subject is considered a board meeting.
 
-Dataverse keeps the policy visible and separate from agent instructions. V2 normalizes this text, recognizes the supported rule, and applies a case-insensitive subject check. It does not ask a model to interpret arbitrary policy prose as authorization.
+Dataverse keeps the policy visible and separate from agent instructions. The flow normalizes this text, recognizes the supported rule, and applies a case-insensitive subject check. It does not ask a model to interpret arbitrary policy prose as authorization.
 
 A new business rule needs a reviewed implementation and tests before automatic enforcement. Editing a row alone cannot grant new permissions. The solution package includes the table definition; active policy rows must be configured in the target environment.
 
@@ -122,9 +122,9 @@ Dataverse actions remain within the calendar flow. Counts describe exported comp
 
 ## Test Scenarios
 
-Live V2 evidence covers no conflict, a resolved ordinary-meeting conflict with the board meeting preserved, and two protected meetings requiring help. The resolved case sent no notification; the unresolved protected conflict submitted an assistant email. Calendar times and notification results were checked beyond the parent flow's success status.
+Recorded live evidence covers no conflict, a resolved ordinary-meeting conflict with the board meeting preserved, and two protected meetings requiring help. The resolved case sent no notification; the unresolved protected conflict submitted an assistant email. Calendar times and notification results were checked beyond the parent flow's success status.
 
-The repository also includes **27 local workflow simulations** against the flow definitions. These exercise fixed checks with simulated services; they are separate from live platform tests. Six additional deployment checks cover dependency declarations, required settings, initial flow state, and the README structure. Earlier live evidence predates the owner's tool cleanup, removal of the starter's concurrency setting, and portability changes. A separate-environment import awaits the owner's manual acceptance test.
+The repository includes **27 local workflow simulations** against the flow definitions, plus package and deployment-script checks. These use simulated services and are separate from live platform tests. The GitHub Actions workflow builds and checks source automatically, with tenant deployment available only through an explicit manual run. The receiving tenant's independent deployment and calendar acceptance results are recorded separately.
 
 See [test evidence and its limits](docs/testing.md). For the interview walkthrough, use the [demo guide](docs/demo.md).
 
@@ -150,11 +150,13 @@ For instructions on setting up that environment structure, access controls, depl
 
 ## Deployment and Import Notes
 
-Download [the portable V2.1 POC package](solution/exports/ZavaExMMeetingConcierge_2_1_0_0_unmanaged.zip) and follow [the installation guide](docs/deployment.md). It covers target connections, the three configuration values, the active governance rule, agent authentication and publication, and a manual acceptance checklist. Both flows are packaged off so the installer can verify setup before enabling processing.
+Use the [GitHub Actions deployment guide](docs/deployment.md) to build, check, and import **Zava ExM Meeting Concierge** into a configured target environment.
 
-The Gatekeeper architecture remains unchanged: the agent invokes one controlled process, and fixed checks own every write. Installation supports the connected Outlook account's **primary calendar**. No lab mailbox, calendar ID, or notification recipient is embedded in the current flow definitions. Target credentials and policy rows are supplied by the installer.
+**First-time authorization is required in the receiving tenant. Its administrator must authorize the deployment identity, create the account connections, and provide the target settings.** The workflow uses federated sign-in without a stored client secret. It imports the checked artifact and verifies components; the administrator then completes rule data, agent authentication/publication, and calendar acceptance checks before enabling processing.
 
-The official CLI has packed and unpacked the portable package, and local checks pass. A clean import into another environment remains unverified until the owner's independent test. Review [security and configuration](docs/security.md) before deployment or a visibility change. The existing [license](LICENSE) is retained.
+For readers who prefer a downloaded ZIP or cannot use GitHub Actions, [manual installation](docs/manual-install.md) is an alternative using [ZavaExMMeetingConcierge.zip](solution/exports/ZavaExMMeetingConcierge.zip). Both routes use the same solution and Gatekeeper controls.
+
+The installed calendar must be the connected Outlook account's **primary calendar**. No lab mailbox, calendar ID, or recipient is embedded in the current flows. Package and local workflow checks do not establish a successful tenant deployment; see [test evidence](docs/testing.md). Review [security](docs/security.md) before deployment. The existing [license](LICENSE) is retained.
 
 ## POC Scope and Limitations
 

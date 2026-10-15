@@ -1,5 +1,6 @@
 """Check package dependencies and portable configuration without a tenant connection."""
 import json
+import os
 from pathlib import Path
 import unittest
 import xml.etree.ElementTree as ET
@@ -71,7 +72,8 @@ class DeploymentTests(unittest.TestCase):
 
     def test_distributable_contains_current_flows_and_settings(self):
         provenance = json.loads((ROOT/'solution/provenance.json').read_text(encoding='utf-8'))
-        with zipfile.ZipFile(ROOT/'solution'/provenance['export_archive']) as archive:
+        package = Path(os.environ['CONCIERGE_PACKAGE_PATH']) if os.environ.get('CONCIERGE_PACKAGE_PATH') else ROOT/'solution'/provenance['export_archive']
+        with zipfile.ZipFile(package) as archive:
             for path in (SOURCE/'Workflows').glob('*.json'):
                 self.assertEqual(json.loads(archive.read('Workflows/'+path.name)), json.loads(path.read_text(encoding='utf-8')))
             customizations = ET.fromstring(archive.read('customizations.xml'))

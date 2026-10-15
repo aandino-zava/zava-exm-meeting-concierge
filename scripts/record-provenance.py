@@ -13,7 +13,7 @@ solution = Path(__file__).resolve().parents[1] / 'solution'
 source = solution / 'unpacked'
 manifest = ET.parse(source / 'Other/Solution.xml').getroot()
 version = manifest.findtext('SolutionManifest/Version')
-archive = solution / ('exports/ZavaExMMeetingConcierge_'+version.replace('.','_')+'_unmanaged.zip')
+archive = solution / 'exports/ZavaExMMeetingConcierge.zip'
 
 def fingerprint(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -25,7 +25,7 @@ record = {
     'solution_version': version,
     'package_type': 'Unmanaged',
     'pac_version': args.pac_version,
-    'source': 'Repository-authored portable POC build based on the preserved V2 Dev export; not a live export',
+    'source': 'Repository-authored portable solution build; not a live export',
     'export_archive': archive.relative_to(solution).as_posix(),
     'archive_sha256': fingerprint(archive),
     'native_files_sha256': {

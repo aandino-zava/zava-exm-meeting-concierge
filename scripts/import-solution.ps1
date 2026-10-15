@@ -1,7 +1,10 @@
 param(
     [Parameter(Mandatory=$true)][uri]$EnvironmentUrl,
     [Parameter(Mandatory=$true)][string]$SettingsFile,
-    [string]$Pac = 'pac'
+    [string]$Pac = 'pac',
+    [string]$PackagePath,
+    [string]$ChecksumFile,
+    [switch]$ValidateOnly
 )
 $ErrorActionPreference = 'Stop'
 if ($EnvironmentUrl.Scheme -ne 'https' -or $EnvironmentUrl.AbsolutePath -ne '/' -or $EnvironmentUrl.Query -or $EnvironmentUrl.Fragment -or $EnvironmentUrl.UserInfo) {
@@ -23,9 +26,20 @@ foreach ($required in $template.ConnectionReferences) {
         throw "Provide a target connection ID and matching connector for $($required.LogicalName)."
     }
 }
-$provenance = Get-Content -LiteralPath (Join-Path $root 'solution/provenance.json') -Raw | ConvertFrom-Json
-$archive = Join-Path $root ('solution/' + $provenance.export_archive)
-if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $provenance.archive_sha256) { throw 'Package checksum differs from provenance.' }
+if ([bool]$PackagePath -ne [bool]$ChecksumFile) { throw 'Supply PackagePath and ChecksumFile together.' }
+if ($PackagePath) {
+    $archive = (Resolve-Path -LiteralPath $PackagePath).Path
+    $checksumText = (Get-Content -LiteralPath $ChecksumFile -Raw).Trim()
+    $checksumMatch = [regex]::Match($checksumText, '^([a-fA-F0-9]{64})  ' + [regex]::Escape([System.IO.Path]::GetFileName($archive)) + '$')
+    if (-not $checksumMatch.Success) { throw 'Checksum file must contain one SHA-256 entry for the selected package.' }
+    $expectedHash = $checksumMatch.Groups[1].Value.ToLowerInvariant()
+} else {
+    $provenance = Get-Content -LiteralPath (Join-Path $root 'solution/provenance.json') -Raw | ConvertFrom-Json
+    $archive = Join-Path $root ('solution/' + $provenance.export_archive)
+    $expectedHash = $provenance.archive_sha256
+}
+if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedHash) { throw 'Package checksum differs from the expected SHA-256.' }
+if ($ValidateOnly) { Write-Output 'Settings and package checksum passed. No tenant connection was made.'; return }
 & $Pac org who --environment $EnvironmentUrl.AbsoluteUri
 if ($LASTEXITCODE -ne 0) { throw 'Target environment check failed' }
 & $Pac solution import --path $archive --settings-file (Resolve-Path -LiteralPath $SettingsFile).Path --environment $EnvironmentUrl.AbsoluteUri --async

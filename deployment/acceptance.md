@@ -1,10 +1,12 @@
 # POC installation acceptance record
 
-Status: **Not run**. Complete this record after an independent manual installation; do not enter credentials or private meeting details.
+Status: **Not run**. Complete this record after an independent installation; do not enter credentials or private meeting details.
 
 | Item | Result |
 | --- | --- |
-| Package version and SHA-256 | Pending |
+| Package SHA-256 and source commit | Pending |
+| Deployment route (GitHub Actions or manual) and workflow run URL | Pending |
+| Imported component checks | Pending |
 | Test date | Pending |
 | Target tenant and environment (use a non-sensitive label) | Pending |
 | Clean environment or existing installation | Pending |

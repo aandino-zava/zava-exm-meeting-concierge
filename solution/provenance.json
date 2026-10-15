@@ -5,8 +5,8 @@
   "solution_version": "2.1.0.0",
   "package_type": "Unmanaged",
   "pac_version": "2.13.1+g251dee1",
-  "source": "Repository-authored portable POC build based on the preserved V2 Dev export; not a live export",
-  "export_archive": "exports/ZavaExMMeetingConcierge_2_1_0_0_unmanaged.zip",
+  "source": "Repository-authored portable solution build; not a live export",
+  "export_archive": "exports/ZavaExMMeetingConcierge.zip",
   "archive_sha256": "dd9e29b02ae039614d7ca9efa848d6a681a0add2313133bad700bead48abb962",
   "native_files_sha256": {
     "aiskillconfigs/ais_FormFillFieldOptOut_cr9b0_calendargovernancerule_cr9b0_ruletext/aiskillconfig.xml": "131c7d81ea6c6e48e2ac49a7be5ccc722277d3cb58e51d1dc9bcda7e3fb07a44",

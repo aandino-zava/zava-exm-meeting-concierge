@@ -1,33 +1,41 @@
 # Build and deployment scripts
 
-Use Python 3.11+ and an official Power Platform CLI. Local checks and packaging do not require signing into a tenant.
+[GitHub Actions](../.github/workflows/meeting-concierge.yml) is the main build and deployment path. Follow [the setup guide](../docs/deployment.md) to authorize the receiving tenant and configure its GitHub environment. [Manual installation](../docs/manual-install.md) is available for downloaded packages.
+
+## Run local checks
+
+Use Python 3.12, PowerShell, and an official Power Platform CLI. The workflow pins its CLI and Python dependencies. Local checks and packaging do not require target sign-in.
 
 ```powershell
-python -m pip install PyYAML tzdata
-python scripts/test_resolver.py
-python scripts/test_deployment.py
-./scripts/pack-solution.ps1
+python -m pip install -r scripts/requirements.txt
 python scripts/validate.py
+python scripts/test_resolver.py
+./scripts/pack-solution.ps1
+python scripts/test_deployment.py
+python scripts/test_verify_import.py
+./scripts/test-import.ps1
 ```
 
-Pack writes a versioned ZIP under ignored `build/`. The repository also includes the ready-to-import V2.1 ZIP and its SHA-256 checksum under `solution/exports/`.
+Pack writes `build/ZavaExMMeetingConcierge.zip` and `build/SHA256SUMS.txt`. Set `CONCIERGE_PACKAGE_PATH` to a built ZIP when running `test_deployment.py` to check that artifact; otherwise it checks the committed download. The scheduling interpreter uses simulated services. Import-script tests use fake PAC and do not contact a tenant.
 
-For an authorized import, follow [the installation guide](../docs/deployment.md), create the target connections, copy `deployment/settings.example.json` to ignored `deployment/settings.local.json`, and fill the settings and connection IDs. Then use `import-solution.ps1 -EnvironmentUrl <target-url> -SettingsFile <local-settings-file>`. It checks inputs and package checksum before calling PAC. It does not sign users into connectors, seed rules, publish the agent, or enable processing.
+## Deployment helpers
 
-## Preparing a new package version
+`import-solution.ps1` validates settings and package hash before calling PAC with an explicit target URL. `-ValidateOnly` performs the checks without tenant access. Without an override it uses the committed package/provenance; `-PackagePath` and `-ChecksumFile` together select a checked workflow artifact. It does not create connections, seed rules, publish the agent, or enable flows.
 
-Update the solution version and reviewed source, then run the tests above. Build the distributable and record its origin:
+`verify-import.py --folder <unpacked-target-export>` checks imported component presence, internal solution identity/revision, the one Gatekeeper tool, connection declarations, configuration definitions, and off flow states. It does not exercise calendar services or prove permissions. The pipeline uses a temporary target export for this check and does not upload it.
+
+## Refresh the downloadable package
+
+After reviewing source changes and updating the internal platform revision when needed:
 
 ```powershell
-./scripts/pack-solution.ps1 -OutputPath ./solution/exports/ZavaExMMeetingConcierge_2_1_0_0_unmanaged.zip
+./scripts/pack-solution.ps1 -OutputPath ./solution/exports/ZavaExMMeetingConcierge.zip
 python scripts/record-provenance.py --pac-version '<actual CLI version>'
 python scripts/validate.py
 ```
 
-Use the filename matching the new version when preparing another release. Do not overwrite V1 or V2.0 evidence. Record-provenance identifies a repository build; it does not imply a live export or a successful import. The validator checks formats, local links, current package/source fingerprints, preserved archive hashes, and common credential patterns.
+Product and download names stay stable. Internal revision numbers and Git commit IDs remain technical traceability data. Do not overwrite the preserved live export evidence. Provenance records a repository build; it does not imply a live export or successful deployment.
 
-`test_resolver.py` runs the current workflow action definitions against simulated calendar and policy services. `test_deployment.py` checks required connections, configuration, initial flow state, and preserved README sections. Neither is Microsoft runtime validation.
+## Review live changes
 
-## Reviewing future live changes
-
-After verifying the intended environment, `export-solution.ps1 -EnvironmentUrl <source-url>` stages an authenticated live ZIP and unpacked source under `build/live-export/`. It deliberately does not overwrite portable source or historical packages. Review the staged diff before reconciling a live change into the next portable version. Keep live test evidence separate from simulations and package checks.
+After verifying the intended environment, `export-solution.ps1 -EnvironmentUrl <source-url>` stages an authenticated live ZIP and unpacked source under `build/live-export/`. Review that diff before changing portable source or the downloadable package. It does not overwrite them automatically.
