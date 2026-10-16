@@ -117,8 +117,10 @@ Recurring events can appear in calendar reads, but moving them is outside the su
 | Governance table | 1 | Stores the supported business rule |
 | Connection references | 3 | Bind target Copilot Studio, Outlook, and Dataverse connections |
 | Bot components, including the tool and system topics | 15 | Native agent configuration; includes the single tool above |
-| Generated AI Skill Config | 1 | Retained platform artifact; no AI classification authorizes writes |
+| Power Apps form assistance setting (AI Skill Config) | 1 | Disables AI form-fill suggestions for the governance Rule Text field |
 | Environment variable definitions | 3 | Calendar mailbox, primary Calendar ID, and Executive assistant email |
+
+The AI Skill Config stores the Rule Text field's `FormFillFieldOptOut` setting. It has no role in meeting classification, scheduling, or calendar-write authorization.
 
 Dataverse actions remain within the calendar flow. Counts describe exported components, rather than every connection used by an action. See [setup and maintenance](docs/deployment.md) for native definitions and connection binding details.
 
